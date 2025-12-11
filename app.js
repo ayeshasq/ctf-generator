@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { Shield, Brain, Bug, Network, Eye, Download, Copy, Check, Sparkles, Lock, FileText, Zap, Flag, AlertCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
+const { useState } = React;
+const { Shield, Brain, Bug, Network, Eye, Download, Copy, Check, Sparkles, Lock, FileText, Zap, Flag, AlertCircle, CheckCircle, XCircle, Loader } = lucide;
 
-export default function CTFGenerator() {
+function CTFGenerator() {
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('random');
