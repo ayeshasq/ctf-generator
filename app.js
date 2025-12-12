@@ -19,67 +19,42 @@ function CTFGenerator() {
   ];
 
   function generateChallenge() {
-    setLoading(true);
-    setFlagInput('');
-    setFlagStatus(null);
-    setAttempts(0);
+  setLoading(true);
+  setFlagInput('');
+  setFlagStatus(null);
+  setAttempts(0);
 
-    const categoryType = selectedCategory === 'random' 
-      ? categories[Math.floor(Math.random() * (categories.length - 1)) + 1].id 
-      : selectedCategory;
+  fetch("/api/generate")
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        alert("Error: API did not return success.");
+        setLoading(false);
+        return;
+      }
 
-    const prompts = {
-      web: 'Create a unique ' + difficulty + ' difficulty web exploitation CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text): {"title": "Challenge title", "storyline": "2-3 sentence engaging storyline", "description": "Detailed challenge description", "flag": "CTF{something_unique}", "points": 100, "hints": ["hint1", "hint2", "hint3"]}',
-      
-      forensics: 'Create a unique ' + difficulty + ' difficulty forensics CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text): {"title": "Challenge title", "storyline": "2-3 sentence compelling storyline", "description": "Detailed scenario description", "flag": "CTF{something_unique}", "points": 100, "hints": ["hint1", "hint2", "hint3"]}',
-      
-      crypto: 'Create a unique ' + difficulty + ' difficulty cryptography CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text): {"title": "Challenge title", "storyline": "2-3 sentence intriguing storyline", "description": "Detailed problem description", "encrypted_message": "The encrypted text", "flag": "CTF{something_unique}", "points": 100, "hints": ["hint1", "hint2", "hint3"]}',
-      
-      network: 'Create a unique ' + difficulty + ' difficulty network analysis CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text): {"title": "Challenge title", "storyline": "2-3 sentence realistic storyline", "description": "Detailed network traffic scenario", "flag": "CTF{something_unique}", "points": 100, "hints": ["hint1", "hint2", "hint3"]}',
-      
-      osint: 'Create a unique ' + difficulty + ' difficulty OSINT CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text): {"title": "Challenge title", "storyline": "2-3 sentence investigative storyline", "description": "Detailed mission description", "flag": "CTF{something_unique}", "points": 100, "hints": ["hint1", "hint2", "hint3"]}'
-    };
-
-    const points = difficulty === 'easy' ? 100 : difficulty === 'medium' ? 250 : 500;
-
-    fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{
-          role: 'user',
-          content: prompts[categoryType]
-        }]
-      })
-    })
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
-      let content = data.content[0].text.trim();
-      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      
-      const parsedChallenge = JSON.parse(content);
-      parsedChallenge.points = points;
-      
       setChallenge({
-        category: categoryType,
-        difficulty: difficulty,
-        data: parsedChallenge,
+        category: data.challenge.category || "unknown",
+        difficulty: data.challenge.difficulty || "medium",
+        data: {
+          title: data.challenge.title,
+          storyline: data.challenge.storyline,
+          description: data.challenge.description,
+          flag: data.challenge.flag,
+          points: data.challenge.points,
+          hints: data.challenge.hints || []
+        },
         timestamp: new Date().toISOString()
       });
+
       setLoading(false);
     })
-    .catch(function(error) {
-      console.error('Error generating challenge:', error);
-      alert('Failed to generate challenge. Please try again.');
+    .catch(err => {
+      console.error("Frontend Error:", err);
+      alert("Failed to load challenge from server.");
       setLoading(false);
     });
-  }
+}
 
   function submitFlag() {
     if (!flagInput.trim()) return;
