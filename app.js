@@ -187,6 +187,326 @@ function CTFGenerator() {
 
   const CategoryIcon = categories.find(c => c.id === selectedCategory)?.icon || Sparkles;
 
+  return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-4" },
+    React.createElement('div', { className: "max-w-6xl mx-auto" },
+      React.createElement('div', { className: "text-center mb-8 pt-8" },
+        React.createElement('div', { className: "flex items-center justify-center mb-4" },
+          React.createElement(Shield, { className: "w-16 h-16 text-purple-400 animate-pulse" })
+        ),
+        React.createElement('h1', { className: "text-5xl font-bold mb-3 bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent" },
+          "AI CTF Challenge Generator"
+        ),
+        React.createElement('p', { className: "text-xl text-gray-300" },
+          "Generate unique hacking challenges in 30 seconds"
+        )
+      ),
+
+      !challenge && React.createElement('div', { className: "bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 mb-6 border border-purple-500/20" },
+        React.createElement('div', { className: "grid md:grid-cols-2 gap-8" },
+          React.createElement('div', null,
+            React.createElement('label', { className: "block text-sm font-semibold mb-3 text-purple-300" },
+              "Challenge Category"
+            ),
+            React.createElement('div', { className: "grid grid-cols-2 gap-3" },
+              categories.map((cat) => {
+                const Icon = cat.icon;
+                return React.createElement('button', {
+                  key: cat.id,
+                  onClick: () => setSelectedCategory(cat.id),
+                  className: `p-4 rounded-xl border-2 transition-all duration-300 ${
+                    selectedCategory === cat.id
+                      ? `bg-gradient-to-r ${cat.color} border-white shadow-lg scale-105`
+                      : 'bg-gray-700/50 border-gray-600 hover:border-purple-400'
+                  }`
+                },
+                  React.createElement(Icon, { className: "w-6 h-6 mx-auto mb-2" }),
+                  React.createElement('div', { className: "text-xs font-medium" }, cat.name)
+                );
+              })
+            )
+          ),
+
+          React.createElement('div', null,
+            React.createElement('label', { className: "block text-sm font-semibold mb-3 text-purple-300" },
+              "Difficulty Level"
+            ),
+            React.createElement('div', { className: "space-y-3" },
+              ['easy', 'medium', 'hard'].map((level) =>
+                React.createElement('button', {
+                  key: level,
+                  onClick: () => setDifficulty(level),
+                  className: `w-full p-4 rounded-xl border-2 transition-all duration-300 ${
+                    difficulty === level
+                      ? 'bg-gradient-to-r from-green-500 to-blue-500 border-white shadow-lg'
+                      : 'bg-gray-700/50 border-gray-600 hover:border-purple-400'
+                  }`
+                },
+                  React.createElement('div', { className: "flex items-center justify-between" },
+                    React.createElement('span', { className: "font-semibold capitalize" }, level),
+                    React.createElement('span', { className: "text-sm" },
+                      level === 'easy' ? '100 pts' : level === 'medium' ? '250 pts' : '500 pts'
+                    )
+                  )
+                )
+              )
+            )
+          )
+        ),
+
+        React.createElement('button', {
+          onClick: generateChallenge,
+          disabled: loading,
+          className: "w-full mt-8 py-5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-purple-500/50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+        },
+          loading ? 
+            React.createElement(React.Fragment, null,
+              React.createElement('div', { className: "w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" }),
+              "Generating Challenge..."
+            ) :
+            React.createElement(React.Fragment, null,
+              React.createElement(CategoryIcon, { className: "w-6 h-6" }),
+              `Generate ${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} Challenge`
+            )
+        )
+      ),
+
+      challenge && React.createElement('div', { className: "space-y-6 animate-fadeIn" },
+        React.createElement('div', { className: "bg-gradient-to-r from-purple-600/20 to-pink-600/20 backdrop-blur-lg rounded-2xl p-6 border border-purple-500/30" },
+          React.createElement('div', { className: "flex items-start justify-between mb-4" },
+            React.createElement('div', { className: "flex-1" },
+              React.createElement('div', { className: "flex items-center gap-3 mb-2" },
+                React.createElement('div', { 
+                  className: `p-2 rounded-lg bg-gradient-to-r ${
+                    categories.find(c => c.id === challenge.category)?.color || 'from-purple-500 to-pink-500'
+                  }` 
+                },
+                  React.createElement(categories.find(c => c.id === challenge.category)?.icon || Sparkles, { className: 'w-5 h-5' })
+                ),
+                React.createElement('div', null,
+                  React.createElement('h2', { className: "text-3xl font-bold" }, challenge.data.title),
+                  React.createElement('div', { className: "flex items-center gap-3 mt-1" },
+                    React.createElement('span', { className: "text-sm px-3 py-1 bg-purple-500/30 rounded-full" },
+                      challenge.category.toUpperCase()
+                    ),
+                    React.createElement('span', { className: "text-sm px-3 py-1 bg-blue-500/30 rounded-full" },
+                      challenge.difficulty.toUpperCase()
+                    ),
+                    React.createElement('span', { className: "text-sm px-3 py-1 bg-yellow-500/30 rounded-full flex items-center gap-1" },
+                      React.createElement(Zap, { className: "w-3 h-3" }),
+                      `${challenge.data.points} pts`
+                    )
+                  )
+                )
+              )
+            ),
+            
+            React.createElement('div', { className: "flex gap-2" },
+              React.createElement('button', {
+                onClick: copyToClipboard,
+                className: "p-2 bg-purple-600/50 hover:bg-purple-600 rounded-lg transition-all",
+                title: "Copy challenge"
+              },
+                copied ? React.createElement(Check, { className: "w-5 h-5" }) : React.createElement(Copy, { className: "w-5 h-5" })
+              ),
+              React.createElement('button', {
+                onClick: downloadChallenge,
+                className: "p-2 bg-pink-600/50 hover:bg-pink-600 rounded-lg transition-all",
+                title: "Download challenge"
+              },
+                React.createElement(Download, { className: "w-5 h-5" })
+              )
+            )
+          ),
+
+          React.createElement('div', { className: "bg-gray-900/50 rounded-xl p-4 mb-3" },
+            React.createElement('p', { className: "text-gray-300 italic" }, challenge.data.storyline)
+          ),
+
+          React.createElement('div', { className: "bg-gray-900/50 rounded-xl p-4" },
+            React.createElement('p', { className: "text-gray-200 leading-relaxed" }, challenge.data.description)
+          )
+        ),
+
+        React.createElement('div', { className: "text-center py-12" },
+          React.createElement('p', { className: "text-2xl font-bold text-purple-400 mb-4" }, "🎯 Challenge Generated Successfully!"),
+          React.createElement('p', { className: "text-gray-300 mb-6" }, "Read the challenge above and enter the flag below"),
+          React.createElement('div', { className: "max-w-md mx-auto" },
+            React.createElement('input', {
+              type: "text",
+              value: flagInput,
+              onChange: (e) => setFlagInput(e.target.value),
+              onKeyPress: (e) => e.key === 'Enter' && submitFlag(),
+              placeholder: "Enter flag (e.g., CTF{...})",
+              className: "w-full px-6 py-4 bg-gray-900/70 border-2 border-purple-500/50 rounded-xl text-lg focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-400/20 transition-all placeholder-gray-500 mb-4"
+            }),
+            React.createElement('button', {
+              onClick: submitFlag,
+              disabled: !flagInput.trim(),
+              className: "w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-700 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-purple-500/50 disabled:cursor-not-allowed"
+            },
+              flagStatus === null ? 'Submit Flag' : flagStatus === 'correct' ? '✅ Correct!' : '❌ Try Again'
+            )
+          )
+        )
+      )
+    )
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(React.createElement(CTFGenerator));    const prompts = {
+      web: `Create a unique ${difficulty} difficulty web exploitation CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text):
+{
+  "title": "Challenge title",
+  "storyline": "2-3 sentence engaging storyline",
+  "description": "Detailed challenge description explaining the scenario and what to find",
+  "vulnerability": "Type of vulnerability",
+  "flag": "CTF{...}",
+  "points": 100,
+  "hints": ["hint1", "hint2", "hint3"],
+  "files": "Description of files/code needed",
+  "solution_steps": ["step1", "step2", "step3"]
+}`,
+      
+      forensics: `Create a unique ${difficulty} difficulty forensics CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text):
+{
+  "title": "Challenge title",
+  "storyline": "2-3 sentence compelling storyline",
+  "description": "Detailed scenario description",
+  "type": "Type of forensics",
+  "flag": "CTF{...}",
+  "points": 100,
+  "hints": ["hint1", "hint2", "hint3"],
+  "files": "Description of files to analyze",
+  "solution_steps": ["step1", "step2", "step3"]
+}`,
+      
+      crypto: `Create a unique ${difficulty} difficulty cryptography CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text):
+{
+  "title": "Challenge title",
+  "storyline": "2-3 sentence intriguing storyline",
+  "description": "Detailed problem description",
+  "cipher_type": "Type of cipher",
+  "encrypted_message": "The encrypted text",
+  "flag": "CTF{...}",
+  "points": 100,
+  "hints": ["hint1", "hint2", "hint3"],
+  "solution_steps": ["step1", "step2", "step3"]
+}`,
+      
+      network: `Create a unique ${difficulty} difficulty network analysis CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text):
+{
+  "title": "Challenge title",
+  "storyline": "2-3 sentence realistic storyline",
+  "description": "Detailed description of network traffic scenario",
+  "scenario": "Network scenario type",
+  "flag": "CTF{...}",
+  "points": 100,
+  "hints": ["hint1", "hint2", "hint3"],
+  "files": "Description of network capture",
+  "solution_steps": ["step1", "step2", "step3"]
+}`,
+      
+      osint: `Create a unique ${difficulty} difficulty OSINT CTF challenge. Return ONLY a JSON object with this EXACT structure (no markdown, no extra text):
+{
+  "title": "Challenge title",
+  "storyline": "2-3 sentence investigative storyline",
+  "description": "Detailed mission description",
+  "target": "What to investigate",
+  "flag": "CTF{...}",
+  "points": 100,
+  "hints": ["hint1", "hint2", "hint3"],
+  "starting_info": "Initial clues",
+  "solution_steps": ["step1", "step2", "step3"]
+}`
+    };
+
+    const points = difficulty === 'easy' ? 100 : difficulty === 'medium' ? 250 : 500;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 4000,
+          messages: [{
+            role: 'user',
+            content: prompts[categoryType]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      let content = data.content[0].text.trim();
+      
+      content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+      
+      const parsedChallenge = JSON.parse(content);
+      parsedChallenge.points = points;
+      
+      setChallenge({
+        category: categoryType,
+        difficulty: difficulty,
+        data: parsedChallenge,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error generating challenge:', error);
+      alert('Failed to generate challenge. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitFlag = () => {
+    if (!flagInput.trim()) return;
+    
+    setSolving(true);
+    setAttempts(prev => prev + 1);
+    
+    setTimeout(() => {
+      if (flagInput.trim() === challenge.data.flag.trim()) {
+        setFlagStatus('correct');
+      } else {
+        setFlagStatus('incorrect');
+      }
+      setSolving(false);
+    }, 800);
+  };
+
+  const resetChallenge = () => {
+    setChallenge(null);
+    setFlagInput('');
+    setFlagStatus(null);
+    setAttempts(0);
+    setShowHint(0);
+  };
+
+  const copyToClipboard = () => {
+    if (challenge) {
+      navigator.clipboard.writeText(JSON.stringify(challenge.data, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const downloadChallenge = () => {
+    if (challenge) {
+      const blob = new Blob([JSON.stringify(challenge.data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ctf-${challenge.category}-${challenge.difficulty}-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  const CategoryIcon = categories.find(c => c.id === selectedCategory)?.icon || Sparkles;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white p-4">
       <div className="max-w-6xl mx-auto">
