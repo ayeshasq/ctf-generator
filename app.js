@@ -532,7 +532,8 @@ if (challenge && !challenge.data) return null;
           ),
           React.createElement('div', { style: { background: 'rgba(0,0,0,0.5)', padding: '15px', borderRadius: '10px' } },
             React.createElement('strong', null, '🎯 Mission: '),
-            challenge.data.description
+            challenge.data.mission
+
           )
         ),
 
