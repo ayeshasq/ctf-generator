@@ -528,7 +528,7 @@ if (challenge && !challenge.data) return null;
           ),
           React.createElement('div', { style: { background: 'rgba(0,0,0,0.5)', padding: '15px', borderRadius: '10px', marginBottom: '15px' } },
             React.createElement('strong', null, '📖 Story: '),
-            challenge.data.story
+            challenge.data.storyline
           ),
           React.createElement('div', { style: { background: 'rgba(0,0,0,0.5)', padding: '15px', borderRadius: '10px' } },
             React.createElement('strong', null, '🎯 Mission: '),
