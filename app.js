@@ -23,208 +23,403 @@ function CTFGenerator() {
 
   
 const challenges = {
-  web: { /* YOUR EXISTING WEB CHALLENGES – KEEP AS IS */ },
 
+  /* ===================== WEB ===================== */
+  web: {
+    easy: {
+      title: "Cookie Kingdom",
+      story: `
+You are auditing a beginner web application hosted at:
+https://web-lab.local/cookie-kingdom
+
+The developer stored authorization logic on the client side.
+This is a common rookie mistake seen in early-stage startups.
+`,
+      description: `
+Access the admin dashboard by manipulating client-side cookies.
+`,
+      steps: [
+        "Visit: https://web-lab.local/cookie-kingdom",
+        "Open browser Developer Tools (F12)",
+        "Navigate to Application → Cookies",
+        "Locate cookie named 'role'",
+        "Change its value from 'user' to 'admin'",
+        "Refresh the page",
+        "Admin panel reveals the flag"
+      ],
+      flag: "CTF{cl13nt_s1d3_4uth_f41l}",
+      points: 100,
+      hints: [
+        "Authorization should never rely on cookies alone",
+        "Cookies can be modified in DevTools",
+        "Try values like admin, true, 1"
+      ]
+    },
+
+    medium: {
+      title: "Login Bypass",
+      story: `
+A legacy PHP login portal is still live at:
+https://web-lab.local/login-bypass
+
+Input validation is weak and SQL queries are constructed unsafely.
+`,
+      description: `
+Bypass authentication using SQL injection and access the admin dashboard.
+`,
+      steps: [
+        "Visit: https://web-lab.local/login-bypass",
+        "Enter username: admin' OR '1'='1",
+        "Enter any password",
+        "Submit the form",
+        "Login succeeds without valid credentials",
+        "Flag appears on dashboard"
+      ],
+      flag: "CTF{sql_1nj3ct10n_w0rks}",
+      points: 250,
+      hints: [
+        "The SQL query uses raw user input",
+        "OR '1'='1' always evaluates true",
+        "Try injecting in username field"
+      ]
+    },
+
+    hard: {
+      title: "Stored XSS Breach",
+      story: `
+An internal employee feedback portal reflects comments to administrators:
+https://web-lab.local/feedback
+
+Admin reviews all comments daily from a privileged account.
+`,
+      description: `
+Inject a stored XSS payload that executes in the admin’s browser.
+`,
+      steps: [
+        "Visit: https://web-lab.local/feedback",
+        "Submit a comment containing JavaScript payload",
+        "Payload executes when admin views it",
+        "Steal hidden token from DOM element id='secret'",
+        "Token reveals the flag"
+      ],
+      flag: "CTF{st0r3d_xss_c0mpr0m1s3}",
+      points: 500,
+      hints: [
+        "Stored XSS executes later",
+        "Try <script> or image onerror payloads",
+        "Inspect DOM for hidden elements"
+      ]
+    }
+  },
+
+  /* ===================== FORENSICS ===================== */
   forensics: {
     easy: {
       title: "Hidden in Plain Sight",
-      story: "A suspicious image was found on a compromised workstation. The user claims it’s just a wallpaper.",
-      description: "Analyze the file and uncover hidden data.",
+      story: `
+An image was posted to a forum and quickly deleted.
+Investigators recovered the image file:
+hidden_message.png
+`,
+      description: `
+Extract hidden text embedded inside the image.
+`,
       steps: [
-        "Download the image file",
-        "Inspect metadata (EXIF)",
-        "Look for embedded strings or hidden content"
+        "Download: hidden_message.png",
+        "Run: strings hidden_message.png",
+        "Search output for CTF{",
+        "Alternatively use steghide or zsteg",
+        "Extract the hidden message"
       ],
-      flag: "CTF{st3g_h1dd3n}",
+      flag: "CTF{st3g0_1s_3v3rywh3r3}",
       points: 100,
       hints: [
-        "Metadata often leaks secrets",
-        "Try strings or steganography tools"
+        "Start with simple tools like strings",
+        "PNG files often hide data",
+        "Look for readable ASCII"
       ]
     },
+
     medium: {
-      title: "Memory Leak",
-      story: "A volatile memory dump was captured from an infected machine.",
-      description: "Analyze the memory dump to extract credentials.",
+      title: "Memory Remnants",
+      story: `
+A compromised Linux server was captured before shutdown.
+Memory image recovered:
+memory_dump.raw
+`,
+      description: `
+Analyze volatile memory to find attacker commands.
+`,
       steps: [
-        "Identify OS profile",
-        "Search for credentials",
-        "Extract plaintext secrets"
+        "Download: memory_dump.raw",
+        "Install Volatility Framework",
+        "Run: volatility imageinfo",
+        "Use linux_bash plugin",
+        "Locate command containing flag"
       ],
-      flag: "CTF{m3m_dump_pw}",
+      flag: "CTF{m3m0ry_n3v3r_f0rg3ts}",
       points: 250,
       hints: [
-        "Think Volatility",
-        "Passwords often live longer than you expect"
+        "Attackers often leave traces in RAM",
+        "Bash history persists in memory",
+        "Search for echo or curl commands"
       ]
     },
+
     hard: {
       title: "Disk After Dark",
-      story: "Attackers wiped logs, but forensic traces remain on disk.",
-      description: "Recover deleted artifacts to find attacker activity.",
+      story: `
+Attackers wiped logs after breaching a Linux server.
+A full disk image was preserved:
+disk_after_dark.img
+`,
+      description: `
+Recover deleted log files from disk image and extract attacker activity.
+`,
       steps: [
-        "Analyze file system structures",
-        "Recover deleted files",
-        "Correlate timestamps"
+        "Download: disk_after_dark.img",
+        "Identify file system using fsstat",
+        "List deleted files with fls",
+        "Recover deleted log file using icat",
+        "Search recovered file for flag"
       ],
-      flag: "CTF{d1sk_gh0st}",
+      flag: "CTF{d1sk_f0r3ns1cs_pr0}",
       points: 500,
       hints: [
-        "Deletion ≠ destruction",
-        "Timeline analysis is key"
+        "Deleted files still have inodes",
+        "Use fls -d to list deleted files",
+        "icat extracts file content"
       ]
     }
   },
 
+  /* ===================== CRYPTO ===================== */
   crypto: {
     easy: {
-      title: "Caesar’s Secret",
-      story: "A message intercepted from an attacker looks oddly shifted.",
-      description: "Decrypt the message using a classical cipher.",
+      title: "Caesar’s Message",
+      story: `
+A message intercepted from an old system:
+FWH{fdhvdu_flskhu}
+`,
+      description: `
+Decrypt the Caesar cipher.
+`,
       steps: [
-        "Identify cipher type",
-        "Brute-force shifts",
-        "Read plaintext"
+        "Identify Caesar cipher",
+        "Try ROT shifts (0–25)",
+        "ROT3 reveals readable text",
+        "Decode full message",
+        "Recover flag"
       ],
-      flag: "CTF{caesar_brok3}",
+      flag: "CTF{caesar_cipher}",
       points: 100,
       hints: [
-        "It’s old-school",
-        "Try shifting letters"
+        "Classic substitution cipher",
+        "ROT3 is common",
+        "Use CyberChef or dcode.fr"
       ]
     },
+
     medium: {
-      title: "Weak RSA",
-      story: "An RSA key was generated incorrectly.",
-      description: "Exploit weak key parameters to recover the message.",
+      title: "Encoded Layers",
+      story: `
+Message captured from malware traffic:
+VjFSS1RtVkZNVnBYVmxKc1UwZDRjRmx0ZEV0U2JGcHpXVmQ0
+`,
+      description: `
+Decode layered Base64 encoding.
+`,
       steps: [
-        "Analyze public key",
-        "Factor modulus",
-        "Decrypt ciphertext"
+        "Identify Base64 encoding",
+        "Decode multiple times",
+        "Use CyberChef",
+        "Stop when readable text appears",
+        "Extract flag"
       ],
-      flag: "CTF{rsa_f41l}",
+      flag: "CTF{b45364_l4y3rs}",
       points: 250,
       hints: [
-        "Small primes are dangerous",
-        "Math breaks crypto"
+        "Look for padding",
+        "Multiple decodes required",
+        "CyberChef helps"
       ]
     },
+
     hard: {
-      title: "Hash Collision",
-      story: "Two different inputs produce the same hash.",
-      description: "Exploit a flawed hash implementation.",
+      title: "Broken RSA",
+      story: `
+RSA parameters leaked from insecure system.
+Small primes were used.
+`,
+      description: `
+Factor RSA modulus and decrypt message.
+`,
       steps: [
-        "Understand hash weakness",
-        "Craft collision",
-        "Extract secret"
+        "Given n=143, e=7",
+        "Factor n into primes",
+        "Calculate φ(n)",
+        "Compute private key d",
+        "Decrypt ciphertext",
+        "Convert number to ASCII"
       ],
-      flag: "CTF{h4sh_cr4ck}",
+      flag: "CTF{rsa_w34k_pr1m3s}",
       points: 500,
       hints: [
-        "Not all hashes are equal",
-        "Look beyond MD5"
+        "143 = 11 × 13",
+        "Weak primes break RSA",
+        "Use modular inverse"
       ]
     }
   },
 
+  /* ===================== NETWORK ===================== */
   network: {
     easy: {
-      title: "Suspicious Traffic",
-      story: "A PCAP file shows odd outbound connections.",
-      description: "Analyze traffic to identify exfiltration.",
+      title: "Open Port",
+      story: `
+A target server is running unknown services.
+`,
+      description: `
+Identify exposed service banner.
+`,
       steps: [
-        "Open PCAP",
-        "Filter suspicious protocols",
-        "Extract data"
+        "Run: nmap -p- target",
+        "Find open port 31337",
+        "Connect using nc",
+        "Read service banner",
+        "Capture flag"
       ],
-      flag: "CTF{pcap_sn00p}",
+      flag: "CTF{p0rt_sc4nn1ng}",
       points: 100,
       hints: [
-        "DNS can hide secrets",
-        "Follow the streams"
+        "Scan all ports",
+        "Use netcat",
+        "Banner grabbing reveals secrets"
       ]
     },
+
     medium: {
-      title: "Man in the Wire",
-      story: "An attacker intercepted internal traffic.",
-      description: "Identify credentials leaked over the network.",
+      title: "Suspicious Traffic",
+      story: `
+Captured network traffic during attack:
+traffic.pcap
+`,
+      description: `
+Analyze DNS traffic for exfiltration.
+`,
       steps: [
-        "Analyze HTTP traffic",
-        "Extract credentials",
-        "Identify victim"
+        "Open traffic.pcap in Wireshark",
+        "Filter DNS packets",
+        "Extract long subdomains",
+        "Base64 decode values",
+        "Reconstruct flag"
       ],
-      flag: "CTF{pl41n_http}",
+      flag: "CTF{dns_exf1ltr4t10n}",
       points: 250,
       hints: [
-        "Encryption matters",
-        "Look for POST requests"
+        "DNS tunneling uses subdomains",
+        "Base64 encoding common",
+        "Wireshark filters help"
       ]
     },
+
     hard: {
-      title: "Command & Control",
-      story: "A compromised host communicates with a C2 server.",
-      description: "Identify the C2 protocol and extract commands.",
+      title: "TLS Decryption",
+      story: `
+Encrypted traffic captured with private key provided.
+`,
+      description: `
+Decrypt HTTPS session and extract sensitive data.
+`,
       steps: [
-        "Analyze beaconing behavior",
-        "Decode payloads",
-        "Extract commands"
+        "Open PCAP in Wireshark",
+        "Configure TLS private key",
+        "Reload capture",
+        "Filter HTTP traffic",
+        "Extract POST body",
+        "Find flag"
       ],
-      flag: "CTF{c2_t4k3d0wn}",
+      flag: "CTF{tls_d3crypt3d}",
       points: 500,
       hints: [
-        "Periodic traffic is suspicious",
-        "Encoding hides intent"
+        "Wireshark TLS settings",
+        "Private key enables decryption",
+        "Follow TCP stream"
       ]
     }
   },
 
+  /* ===================== OSINT ===================== */
   osint: {
     easy: {
-      title: "Username Trail",
-      story: "An attacker reused the same username across platforms.",
-      description: "Track the username to find leaked data.",
+      title: "Social Clues",
+      story: `
+Target username: cyber_analyst_92
+`,
+      description: `
+Identify public posts revealing location.
+`,
       steps: [
-        "Search social platforms",
-        "Correlate profiles",
-        "Extract info"
+        "Search username on Twitter / Instagram",
+        "Find recent geo-tagged post",
+        "Decode coordinates",
+        "Flag hidden in bio"
       ],
-      flag: "CTF{0s1nt_hunt}",
+      flag: "CTF{0s1nt_b4s1cs}",
       points: 100,
       hints: [
-        "People reuse usernames",
-        "Google is powerful"
+        "People overshare online",
+        "Check bios and captions",
+        "Use Google Maps"
       ]
     },
+
     medium: {
-      title: "Digital Footprint",
-      story: "A company executive overshared online.",
-      description: "Find sensitive details using open sources.",
+      title: "Metadata Never Lies",
+      story: `
+Image recovered from cloud storage:
+vacation.jpg
+`,
+      description: `
+Extract EXIF metadata to locate suspect.
+`,
       steps: [
-        "Search public records",
-        "Analyze social media",
-        "Correlate timelines"
+        "Download vacation.jpg",
+        "Run: exiftool vacation.jpg",
+        "Locate GPS coordinates",
+        "Decode hidden comment",
+        "Extract flag"
       ],
-      flag: "CTF{pub1ic_inf0}",
+      flag: "CTF{m3t4d4t4_l34ks}",
       points: 250,
       hints: [
-        "Think like an attacker",
-        "Metadata matters"
+        "EXIF stores GPS",
+        "UserComment often abused",
+        "Exiftool is powerful"
       ]
     },
+
     hard: {
-      title: "Ghost Organization",
-      story: "A fake company is laundering money online.",
-      description: "Uncover ownership and infrastructure.",
+      title: "Infrastructure Mapping",
+      story: `
+Investigate suspicious domain: shady-corp.example
+`,
+      description: `
+Map subdomains and certificates to reconstruct flag.
+`,
       steps: [
-        "Analyze domains",
-        "Check WHOIS records",
-        "Correlate entities"
+        "Search crt.sh for certificates",
+        "Enumerate subdomains",
+        "Inspect TXT DNS records",
+        "Collect flag fragments",
+        "Combine fragments"
       ],
-      flag: "CTF{0s1nt_m4st3r}",
+      flag: "CTF{0s1nt_3xp3rt}",
       points: 500,
       hints: [
-        "Follow the money",
-        "Infrastructure leaves trails"
+        "Certificate transparency logs",
+        "DNS TXT records",
+        "Subdomain enumeration"
       ]
     }
   }
