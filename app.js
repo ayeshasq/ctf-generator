@@ -518,9 +518,10 @@ DEFENSE IN DEPTH:
     setRevealedHints([]);
 
     setTimeout(function() {
-      const cat = selectedCategory === 'random' 
-        ? categories[Math.floor(Math.random() * 5) + 1].id 
-        : selectedCategory;
+      const nonRandomCategories = categories.filter(c => c.id !== 'random');
+const cat = selectedCategory === 'random'
+  ? nonRandomCategories[Math.floor(Math.random() * nonRandomCategories.length)].id
+  : selectedCategory;
       
       setChallenge({
         category: cat,
