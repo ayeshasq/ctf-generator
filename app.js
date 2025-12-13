@@ -191,14 +191,16 @@ function CTFGenerator() {
   }
 
   function submit() {
- disabled: !flagInput.trim() || attempts >= MAX_ATTEMPTS,
   if (attempts >= MAX_ATTEMPTS) return;
+  if (!challenge) return;
 
-  const isCorrect = flagInput.trim() === challenge.data.flag.trim();
+  const isCorrect =
+    flagInput.trim() === challenge.data.flag.trim();
 
   setAttempts(prev => prev + 1);
   setFlagStatus(isCorrect ? 'correct' : 'incorrect');
 }
+
 
   function reset() {
     setChallenge(null);
