@@ -821,10 +821,9 @@ flagStatus === null && attempts < MAX_ATTEMPTS
               value: flagInput,
               disabled: attempts >= MAX_ATTEMPTS,
               onChange: function(e) { setFlagInput(e.target.value); },
-             onKeyDown: function(e) {
+            onKeyDown: function(e) {
   if (e.key === 'Enter') submit();
-}
-
+},
               placeholder: 'CTF{...}',
               style: {
                 width: '100%',
