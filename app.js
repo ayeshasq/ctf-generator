@@ -9,6 +9,8 @@ function CTFGenerator() {
   const [flagStatus, setFlagStatus] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const [revealedHints, setRevealedHints] = useState([]);
+  const MAX_ATTEMPTS = 5;
+
 
   const categories = [
     { id: 'random', name: 'Random', emoji: '🎲' },
