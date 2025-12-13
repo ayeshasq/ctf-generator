@@ -9,6 +9,8 @@ function CTFGenerator() {
   const [flagStatus, setFlagStatus] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const [revealedHints, setRevealedHints] = useState([]);
+  const MAX_ATTEMPTS = 3;
+
 
   const categories = [
     { id: 'random', name: 'Random', emoji: '🎲' },
@@ -189,10 +191,14 @@ function CTFGenerator() {
   }
 
   function submit() {
-    if (!flagInput.trim()) return;
-    setAttempts(attempts + 1);
-    setFlagStatus(flagInput.trim() === challenge.data.flag.trim() ? 'correct' : 'incorrect');
-  }
+ disabled: !flagInput.trim() || attempts >= MAX_ATTEMPTS,
+  if (attempts >= MAX_ATTEMPTS) return;
+
+  const isCorrect = flagInput.trim() === challenge.data.flag.trim();
+
+  setAttempts(prev => prev + 1);
+  setFlagStatus(isCorrect ? 'correct' : 'incorrect');
+}
 
   function reset() {
     setChallenge(null);
@@ -354,11 +360,32 @@ function CTFGenerator() {
 
         React.createElement('div', { style: { background: 'rgba(31, 41, 55, 0.8)', borderRadius: '20px', padding: '40px', textAlign: 'center' } },
           React.createElement('h3', { style: { fontSize: '28px', marginBottom: '20px' } }, '🚩 Capture The Flag'),
-          flagStatus === null ? React.createElement('div', { style: { maxWidth: '500px', margin: '0 auto' } },
-            React.createElement('p', { style: { marginBottom: '15px' } }, 'Attempts: ' + attempts),
+                            attempts >= MAX_ATTEMPTS &&
+  React.createElement(
+    'p',
+    {
+      style: {
+        color: '#ef4444',
+        marginBottom: '15px',
+        fontWeight: 'bold'
+      }
+    },
+    '🚫 Maximum attempts reached. Challenge locked.'
+  ),
+
+flagStatus === null && attempts < MAX_ATTEMPTS
+  ? React.createElement('div', { style: { maxWidth: '500px', margin: '0 auto' } },
+
+          React.createElement(
+  'p',
+  { style: { marginBottom: '15px', color: attempts >= MAX_ATTEMPTS ? '#ef4444' : '#d1d5db' } },
+  'Attempts left: ' + (MAX_ATTEMPTS - attempts) + ' / ' + MAX_ATTEMPTS
+),
+
             React.createElement('input', {
               type: 'text',
               value: flagInput,
+              disabled: attempts >= MAX_ATTEMPTS,
               onChange: function(e) { setFlagInput(e.target.value); },
               onKeyPress: function(e) { if (e.key === 'Enter') submit(); },
               placeholder: 'CTF{...}',
