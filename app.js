@@ -56,38 +56,77 @@ Set-Cookie: role=user
       source: "Inspired by OWASP WebGoat & TryHackMe Web Fundamentals"
     },
 
-    medium: {
-      title: "Hidden Endpoint",
-      difficulty: "Medium",
-      points: 250,
-      category: "Web Exploitation",
-      storyline: `
-An internal admin panel was accidentally deployed to production.
-While the main UI hides it, traces remain in client-side JavaScript.
+   medium: {
+  title: "Hidden Endpoint",
+  difficulty: "Medium",
+  points: 250,
+  category: "Web Exploitation",
 
-Your job is to analyze application logic leaks.
-      `,
-      mission: `
-Find the undocumented endpoint and extract the admin token.
-      `,
-      steps: [
-        "Review the JavaScript configuration object",
-        "Identify unused API routes",
-        "Extract sensitive credentials"
-      ],
-      artifact: `
+  storyline: `
+A frontend developer accidentally pushed a debug JavaScript file
+into production. While the UI does not expose any admin features,
+the application logic still contains references to internal APIs.
+
+Attackers often inspect JavaScript files to discover hidden endpoints
+and sensitive tokens.
+  `,
+
+  mission: `
+You are provided with a leaked JavaScript configuration file.
+Your task is to analyze it, identify the undocumented admin endpoint,
+and extract the admin flag from the simulated API response.
+  `,
+
+  steps: [
+    "Open and review the provided JavaScript file",
+    "Identify configuration variables related to admin functionality",
+    "Locate the hidden API endpoint and token",
+    "Read the simulated API response to retrieve the flag"
+  ],
+
+  artifact: `
+📄 File Provided: frontend-config.js
+
+// Loaded by the browser on page load
 const config = {
-  apiBase: "/api/v1",
-  debug: true,
-  adminPanel: "/api/v1/admin?token=supersecret123"
-}
+  apiBase: "/api/v2",
+  environment: "production",
+  debugMode: true,
 
-// FLAG returned when token is valid
-// FLAG: CTF{js_leaks_are_real}
-      `,
-      flag: "CTF{js_leaks_are_real}",
-      source: "Inspired by real-world JS exposure incidents & TryHackMe"
-    },
+  features: {
+    userDashboard: true,
+    adminPanel: false
+  },
+
+  // ⚠️ DEBUG — SHOULD NOT BE EXPOSED
+  adminApi: "/api/v2/internal/admin",
+  adminToken: "admin_debug_token_45892"
+};
+
+/*
+Simulated request:
+
+GET /api/v2/internal/admin?token=admin_debug_token_45892
+
+Simulated response:
+
+{
+  "status": "success",
+  "flag": "CTF{hidden_endpoints_leak_through_js}"
+}
+*/
+  `,
+
+  flag: "CTF{hidden_endpoints_leak_through_js}",
+
+  hints: [
+    "JavaScript files are always visible to users",
+    "Search for debug comments or disabled features",
+    "Sensitive endpoints should never exist in frontend code"
+  ],
+
+  source: "Inspired by TryHackMe Web Enumeration & OWASP Top 10"
+}
 
     hard: {
       title: "Broken Authentication",
