@@ -230,10 +230,100 @@ function CTFGenerator() {
     React.createElement('div', { style: { maxWidth: '1200px', margin: '0 auto' } },
       
       React.createElement('div', { style: { textAlign: 'center', padding: '40px 0' } },
-        React.createElement('div', { style: { fontSize: '60px', marginBottom: '10px' } }, '🛡️'),
-        React.createElement('h1', { style: { fontSize: '48px', fontWeight: 'bold', marginBottom: '10px', background: 'linear-gradient(to right, #c084fc, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' } }, 'AI CTF Challenge Generator'),
-        React.createElement('p', { style: { fontSize: '20px', color: '#d1d5db' } }, 'Generate unique hacking challenges in seconds')
-      ),
+  // Custom SVG Logo
+  React.createElement('svg', {
+    width: '120',
+    height: '120',
+    viewBox: '0 0 120 120',
+    style: { 
+      marginBottom: '20px',
+      filter: 'drop-shadow(0 0 30px rgba(168, 85, 247, 0.8))',
+      display: 'inline-block'
+    }
+  },
+    // Gradient definition
+    React.createElement('defs', null,
+      React.createElement('linearGradient', {
+        id: 'shieldGradient',
+        x1: '0%',
+        y1: '0%',
+        x2: '0%',
+        y2: '100%'
+      },
+        React.createElement('stop', { 
+          offset: '0%', 
+          style: { stopColor: '#a855f7', stopOpacity: 1 } 
+        }),
+        React.createElement('stop', { 
+          offset: '50%', 
+          style: { stopColor: '#ec4899', stopOpacity: 1 } 
+        }),
+        React.createElement('stop', { 
+          offset: '100%', 
+          style: { stopColor: '#6b21a8', stopOpacity: 1 } 
+        })
+      )
+    ),
+    // Shield outline
+    React.createElement('path', {
+      d: 'M60 10 L100 25 L100 60 Q100 90 60 110 Q20 90 20 60 L20 25 Z',
+      fill: 'url(#shieldGradient)',
+      stroke: '#ec4899',
+      strokeWidth: '3'
+    }),
+    // Lock body
+    React.createElement('rect', {
+      x: '45',
+      y: '55',
+      width: '30',
+      height: '25',
+      rx: '3',
+      fill: '#1a0b2e'
+    }),
+    // Lock shackle
+    React.createElement('path', {
+      d: 'M50 55 L50 45 Q50 35 60 35 Q70 35 70 45 L70 55',
+      fill: 'none',
+      stroke: '#1a0b2e',
+      strokeWidth: '4'
+    }),
+    // Code bracket left
+    React.createElement('text', {
+      x: '35',
+      y: '75',
+      fill: '#c084fc',
+      fontSize: '24',
+      fontWeight: 'bold',
+      fontFamily: 'monospace'
+    }, '</'),
+    // Code bracket right
+    React.createElement('text', {
+      x: '70',
+      y: '75',
+      fill: '#c084fc',
+      fontSize: '24',
+      fontWeight: 'bold',
+      fontFamily: 'monospace'
+    }, '>')
+  ),
+  
+  React.createElement('h1', { 
+    style: { 
+      fontSize: '48px', 
+      fontWeight: 'bold', 
+      marginBottom: '10px', 
+      background: 'linear-gradient(to right, #c084fc, #ec4899)', 
+      WebkitBackgroundClip: 'text', 
+      WebkitTextFillColor: 'transparent' 
+    } 
+  }, 'AI CTF Challenge Generator'),
+  React.createElement('p', { 
+    style: { 
+      fontSize: '20px', 
+      color: '#d1d5db' 
+    } 
+  }, 'Generate unique hacking challenges in seconds')
+),
 
       !challenge ? React.createElement('div', {
         style: {
