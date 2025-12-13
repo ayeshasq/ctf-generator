@@ -559,6 +559,7 @@ const cat = selectedCategory === 'random'
       setRevealedHints(revealedHints.concat([i]));
     }
   }
+if (challenge && !challenge.data) return null;
 
   return React.createElement('div', {
     style: {
