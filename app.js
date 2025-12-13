@@ -557,7 +557,7 @@ if (challenge && !challenge.data) return null;
 
         React.createElement('div', { style: { background: 'rgba(31, 41, 55, 0.6)', borderRadius: '20px', padding: '30px', marginBottom: '20px' } },
           React.createElement('h3', { style: { marginBottom: '15px', color: '#c084fc' } }, '💡 Hints'),
-          challenge.data.hints.map(function(_, i) {
+          (challenge.data.hints || []).map(function(_, i) {
             const show = revealedHints.includes(i);
             return React.createElement('div', { key: i, style: { marginBottom: '10px' } },
               React.createElement('button', {
