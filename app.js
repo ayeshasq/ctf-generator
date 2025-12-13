@@ -1,6 +1,10 @@
 const { useState } = React;
 
 function CTFGenerator() {
+  const [score, setScore] = useState(() => {
+  return Number(localStorage.getItem('ctf_score')) || 0;
+});
+
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('random');
@@ -10,6 +14,14 @@ function CTFGenerator() {
   const [attempts, setAttempts] = useState(0);
   const [revealedHints, setRevealedHints] = useState([]);
   const MAX_ATTEMPTS = 3;
+  function updateScore(points) {
+  setScore(prev => {
+    const newScore = prev + points;
+    localStorage.setItem('ctf_score', newScore);
+    return newScore;
+  });
+}
+
 
 
   const categories = [
@@ -194,20 +206,34 @@ function CTFGenerator() {
   if (!flagInput.trim()) return;
   if (attempts >= MAX_ATTEMPTS) return;
 
-  const isCorrect = flagInput.trim() === challenge.data.flag.trim();
+  const newAttempts = attempts + 1;
+  setAttempts(newAttempts);
 
-  setAttempts(prev => prev + 1);
-  setFlagStatus(isCorrect ? 'correct' : 'incorrect');
+  const isCorrect =
+    flagInput.trim() === challenge.data.flag.trim();
+
+  if (isCorrect) {
+    const penalty = (newAttempts - 1) * 10;
+    const earnedPoints = Math.max(
+      challenge.data.points - penalty,
+      10
+    );
+
+    updateScore(earnedPoints);
+    setFlagStatus('correct');
+  } else {
+    setFlagStatus('incorrect');
+  }
 }
 
-
   function reset() {
-    setChallenge(null);
-    setFlagInput('');
-    setFlagStatus(null);
-    setAttempts(0);
-    setRevealedHints([]);
-  }
+  setChallenge(null);
+  setFlagInput('');
+  setFlagStatus(null);
+  setAttempts(0);
+  setRevealedHints([]);
+}
+
 
   function toggleHint(i) {
     if (revealedHints.includes(i)) {
@@ -217,15 +243,25 @@ function CTFGenerator() {
     }
   }
 
-  return React.createElement('div', {
+  React.createElement(
+  'div',
+  {
     style: {
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a0b2e 0%, #6b21a8 50%, #1a0b2e 100%)',
-      color: 'white',
-      padding: '20px',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      position: 'fixed',
+      top: '20px',
+      right: '30px',
+      background: 'rgba(0,0,0,0.7)',
+      padding: '12px 20px',
+      borderRadius: '14px',
+      fontWeight: 'bold',
+      fontSize: '18px',
+      border: '1px solid rgba(168, 85, 247, 0.5)',
+      zIndex: 1000
     }
   },
+  '🏆 Score: ' + score
+),
+
     React.createElement('div', { style: { maxWidth: '1200px', margin: '0 auto' } },
       
       React.createElement('div', { style: { textAlign: 'center', padding: '40px 0' } },
