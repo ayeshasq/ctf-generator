@@ -126,7 +126,7 @@ Simulated response:
   ],
 
   source: "Inspired by TryHackMe Web Enumeration & OWASP Top 10"
-}
+},
 
     hard: {
       title: "Broken Authentication",
