@@ -9,7 +9,7 @@ function CTFGenerator() {
   const [flagStatus, setFlagStatus] = useState(null);
   const [attempts, setAttempts] = useState(0);
   const [revealedHints, setRevealedHints] = useState([]);
-  const MAX_ATTEMPTS = 5;
+  const MAX_ATTEMPTS = 3;
 
 
   const categories = [
@@ -190,11 +190,16 @@ function CTFGenerator() {
     }, 1500);
   }
 
-  function submit() {
-    if (!flagInput.trim()) return;
-    setAttempts(attempts + 1);
-    setFlagStatus(flagInput.trim() === challenge.data.flag.trim() ? 'correct' : 'incorrect');
-  }
+ function submit() {
+  if (!flagInput.trim()) return;
+  if (attempts >= MAX_ATTEMPTS) return;
+
+  const isCorrect = flagInput.trim() === challenge.data.flag.trim();
+
+  setAttempts(prev => prev + 1);
+  setFlagStatus(isCorrect ? 'correct' : 'incorrect');
+}
+
 
   function reset() {
     setChallenge(null);
