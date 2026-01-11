@@ -1,6 +1,6 @@
-const { useState } = React;
+import { useState } from 'react';
 
-function CTFGenerator() {
+export default function CTFGenerator() {
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('random');
@@ -383,7 +383,7 @@ example.com/internal-notes (deleted)
     setAttempts(0);
     setRevealedHints([]);
 
-    setTimeout(function() {
+    setTimeout(() => {
       const nonRandomCategories = categories.filter(c => c.id !== 'random');
       const cat = selectedCategory === 'random' 
         ? nonRandomCategories[Math.floor(Math.random() * nonRandomCategories.length)].id 
@@ -417,616 +417,560 @@ example.com/internal-notes (deleted)
 
   function toggleHint(i) {
     if (revealedHints.includes(i)) {
-      setRevealedHints(revealedHints.filter(function(x) { return x !== i; }));
+      setRevealedHints(revealedHints.filter(x => x !== i));
     } else {
-      setRevealedHints(revealedHints.concat([i]));
+      setRevealedHints([...revealedHints, i]);
     }
   }
 
   if (challenge && !challenge.data) return null;
 
-  return React.createElement('div', {
-    style: {
+  return (
+    <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1a0b2e 0%, #6b21a8 50%, #1a0b2e 100%)',
       color: 'white',
       padding: '20px',
       fontFamily: 'system-ui, -apple-system, sans-serif'
-    }
-  },
-    React.createElement('div', {
-      style: {
-        maxWidth: '1200px',
-        margin: '0 auto'
-      }
-    },
-      React.createElement('div', {
-        style: {
-          textAlign: 'center',
-          padding: '40px 0'
-        }
-      },
-        // Custom SVG Logo
-        React.createElement('svg', {
-          width: '120',
-          height: '120',
-          viewBox: '0 0 120 120',
-          style: {
-            marginBottom: '20px',
-            filter: 'drop-shadow(0 0 30px rgba(168, 85, 247, 0.8))',
-            display: 'inline-block'
-          }
-        },
-          React.createElement('defs', null,
-            React.createElement('linearGradient', {
-              id: 'shieldGradient',
-              x1: '0%',
-              y1: '0%',
-              x2: '0%',
-              y2: '100%'
-            },
-              React.createElement('stop', {
-                offset: '0%',
-                style: { stopColor: '#a855f7', stopOpacity: 1 }
-              }),
-              React.createElement('stop', {
-                offset: '50%',
-                style: { stopColor: '#ec4899', stopOpacity: 1 }
-              }),
-              React.createElement('stop', {
-                offset: '100%',
-                style: { stopColor: '#6b21a8', stopOpacity: 1 }
-              })
-            )
-          ),
-          React.createElement('path', {
-            d: 'M60 10 L100 25 L100 60 Q100 90 60 110 Q20 90 20 60 L20 25 Z',
-            fill: 'url(#shieldGradient)',
-            stroke: '#ec4899',
-            strokeWidth: '3'
-          }),
-          React.createElement('rect', {
-            x: '45',
-            y: '55',
-            width: '30',
-            height: '25',
-            rx: '3',
-            fill: '#1a0b2e'
-          }),
-          React.createElement('path', {
-            d: 'M50 55 L50 45 Q50 35 60 35 Q70 35 70 45 L70 55',
-            fill: 'none',
-            stroke: '#1a0b2e',
-            strokeWidth: '4'
-          }),
-          React.createElement('text', {
-            x: '35',
-            y: '75',
-            fill: '#c084fc',
-            fontSize: '24',
-            fontWeight: 'bold',
-            fontFamily: 'monospace'
-          }, '</'),
-          React.createElement('text', {
-            x: '70',
-            y: '75',
-            fill: '#c084fc',
-            fontSize: '24',
-            fontWeight: 'bold',
-            fontFamily: 'monospace'
-          }, '>')
-        ),
-        React.createElement('h1', {
-          style: {
+    }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{ textAlign: 'center', padding: '40px 0' }}>
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+            style={{
+              marginBottom: '20px',
+              filter: 'drop-shadow(0 0 30px rgba(168, 85, 247, 0.8))',
+              display: 'inline-block'
+            }}
+          >
+            <defs>
+              <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#a855f7', stopOpacity: 1 }} />
+                <stop offset="50%" style={{ stopColor: '#ec4899', stopOpacity: 1 }} />
+                <stop offset="100%" style={{ stopColor: '#6b21a8', stopOpacity: 1 }} />
+              </linearGradient>
+            </defs>
+            <path
+              d="M60 10 L100 25 L100 60 Q100 90 60 110 Q20 90 20 60 L20 25 Z"
+              fill="url(#shieldGradient)"
+              stroke="#ec4899"
+              strokeWidth="3"
+            />
+            <rect x="45" y="55" width="30" height="25" rx="3" fill="#1a0b2e" />
+            <path
+              d="M50 55 L50 45 Q50 35 60 35 Q70 35 70 45 L70 55"
+              fill="none"
+              stroke="#1a0b2e"
+              strokeWidth="4"
+            />
+            <text
+              x="35"
+              y="75"
+              fill="#c084fc"
+              fontSize="24"
+              fontWeight="bold"
+              fontFamily="monospace"
+            >
+              &lt;/
+            </text>
+            <text
+              x="70"
+              y="75"
+              fill="#c084fc"
+              fontSize="24"
+              fontWeight="bold"
+              fontFamily="monospace"
+            >
+              &gt;
+            </text>
+          </svg>
+          <h1 style={{
             fontSize: '48px',
             fontWeight: 'bold',
             marginBottom: '10px',
             background: 'linear-gradient(to right, #c084fc, #ec4899)',
             WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }
-        }, 'AI CTF Challenge Generator'),
-        React.createElement('p', {
-          style: {
-            fontSize: '20px',
-            color: '#d1d5db'
-          }
-        }, 'Generate unique hacking challenges in seconds')
-      ),
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            AI CTF Challenge Generator
+          </h1>
+          <p style={{ fontSize: '20px', color: '#d1d5db' }}>
+            Generate unique hacking challenges in seconds
+          </p>
+        </div>
 
-      !challenge ? React.createElement('div', {
-        style: {
-          background: 'rgba(31, 41, 55, 0.6)',
-          borderRadius: '20px',
-          padding: '40px',
-          border: '1px solid rgba(168, 85, 247, 0.3)'
-        }
-      },
-        React.createElement('div', {
-          style: { marginBottom: '30px' }
-        },
-          React.createElement('h3', {
-            style: {
-              marginBottom: '15px',
-              color: '#c084fc'
-            }
-          }, 'Category'),
-          React.createElement('div', {
-            style: {
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '10px'
-            }
-          },
-            categories.map(function(c) {
-              return React.createElement('button', {
-                key: c.id,
-                onClick: function() { setSelectedCategory(c.id); },
-                style: {
-                  padding: '15px',
-                  borderRadius: '10px',
-                  border: selectedCategory === c.id ? '2px solid white' : '2px solid #4b5563',
-                  background: selectedCategory === c.id ? 'linear-gradient(to right, #a855f7, #ec4899)' : 'rgba(55, 65, 81, 0.5)',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  fontWeight: 'bold'
-                }
-              }, c.emoji + ' ' + c.name);
-            })
-          )
-        ),
-        React.createElement('div', {
-          style: { marginBottom: '30px' }
-        },
-          React.createElement('h3', {
-            style: {
-              marginBottom: '15px',
-              color: '#c084fc'
-            }
-          }, 'Difficulty'),
-          React.createElement('div', {
-            style: {
-              display: 'flex',
-              gap: '10px'
-            }
-          },
-            ['easy', 'medium', 'hard'].map(function(d) {
-              return React.createElement('button', {
-                key: d,
-                onClick: function() { setDifficulty(d); },
-                style: {
-                  flex: 1,
-                  padding: '15px',
-                  borderRadius: '10px',
-                  border: difficulty === d ? '2px solid white' : '2px solid #4b5563',
-                  background: difficulty === d ? 'linear-gradient(to right, #10b981, #3b82f6)' : 'rgba(55, 65, 81, 0.5)',
-                  color: 'white',
-                  cursor: 'pointer',
-                  textTransform: 'capitalize',
-                  fontWeight: 'bold'
-                }
-              }, d);
-            })
-          )
-        ),
-        React.createElement('button', {
-          onClick: generate,
-          disabled: loading,
-          style: {
-            width: '100%',
-            padding: '20px',
-            fontSize: '18px',
-            fontWeight: 'bold',
-            borderRadius: '10px',
-            border: 'none',
-            background: loading ? '#4b5563' : 'linear-gradient(to right, #9333ea, #ec4899)',
-            color: 'white',
-            cursor: loading ? 'not-allowed' : 'pointer'
-          }
-        }, loading ? '⏳ Generating...' : '🎲 Generate Challenge')
-      ) : React.createElement('div', null,
-        // Challenge Header
-        React.createElement('div', {
-          style: {
-            background: 'rgba(147, 51, 234, 0.2)',
-            borderRadius: '20px',
-            padding: '30px',
-            marginBottom: '20px',
-            border: '1px solid rgba(168, 85, 247, 0.3)'
-          }
-        },
-          React.createElement('h2', {
-            style: {
-              fontSize: '32px',
-              marginBottom: '15px'
-            }
-          }, challenge.data.title),
-          React.createElement('div', {
-            style: {
-              display: 'flex',
-              gap: '10px',
-              marginBottom: '20px',
-              flexWrap: 'wrap'
-            }
-          },
-            React.createElement('span', {
-              style: {
-                padding: '5px 15px',
-                background: 'rgba(168, 85, 247, 0.3)',
-                borderRadius: '20px',
-                fontSize: '12px'
-              }
-            }, challenge.category.toUpperCase()),
-            React.createElement('span', {
-              style: {
-                padding: '5px 15px',
-                background: 'rgba(59, 130, 246, 0.3)',
-                borderRadius: '20px',
-                fontSize: '12px'
-              }
-            }, challenge.difficulty.toUpperCase()),
-            React.createElement('span', {
-              style: {
-                padding: '5px 15px',
-                background: 'rgba(234, 179, 8, 0.3)',
-                borderRadius: '20px',
-                fontSize: '12px'
-              }
-            }, '⚡ ' + challenge.data.points + ' pts')
-          ),
-          React.createElement('div', {
-            style: {
-              background: 'rgba(0,0,0,0.5)',
-              padding: '15px',
-              borderRadius: '10px',
-              marginBottom: '15px'
-            }
-          },
-            React.createElement('strong', null, '📖 Story: '),
-            challenge.data.storyline
-          ),
-          React.createElement('div', {
-            style: {
-              background: 'rgba(0,0,0,0.5)',
-              padding: '15px',
-              borderRadius: '10px'
-            }
-          },
-            React.createElement('strong', null, '🎯 Mission: '),
-            challenge.data.mission
-          )
-        ),
-
-        // Step-by-Step Guide
-        React.createElement('div', {
-          style: {
+        {!challenge ? (
+          <div style={{
             background: 'rgba(31, 41, 55, 0.6)',
-            borderRadius: '20px',
-            padding: '30px',
-            marginBottom: '20px'
-          }
-        },
-          React.createElement('h3', {
-            style: {
-              marginBottom: '15px',
-              color: '#3b82f6'
-            }
-          }, '📋 Step-by-Step Guide'),
-          challenge.data.steps.map(function(s, i) {
-            return React.createElement('div', {
-              key: i,
-              style: {
-                padding: '12px',
-                marginBottom: '10px',
-                background: 'rgba(59, 130, 246, 0.1)',
-                borderRadius: '8px',
-                borderLeft: '3px solid #3b82f6',
-                fontFamily: 'monospace',
-                fontSize: '14px'
-              }
-            }, (i + 1) + '. ' + s);
-          })
-        ),
-
-        // ARTIFACT DISPLAY - THIS IS THE NEW SECTION
-        React.createElement('div', {
-          style: {
-            background: 'rgba(31, 41, 55, 0.6)',
-            borderRadius: '20px',
-            padding: '30px',
-            marginBottom: '20px',
-            border: '2px solid rgba(236, 72, 153, 0.4)'
-          }
-        },
-          React.createElement('h3', {
-            style: {
-              marginBottom: '15px',
-              color: '#ec4899',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
-            }
-          }, 
-            '📦 Challenge Artifact',
-            React.createElement('span', {
-              style: {
-                fontSize: '12px',
-                padding: '4px 12px',
-                background: 'rgba(236, 72, 153, 0.2)',
-                borderRadius: '12px',
-                fontWeight: 'normal'
-              }
-            }, 'Analyze this carefully')
-          ),
-          React.createElement('div', {
-            style: {
-              background: '#1a1a1a',
-              padding: '20px',
-              borderRadius: '10px',
-              border: '1px solid rgba(168, 85, 247, 0.3)',
-              fontFamily: 'monospace',
-              fontSize: '14px',
-              lineHeight: '1.6',
-              color: '#10b981',
-              overflowX: 'auto',
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-word'
-            }
-          }, challenge.data.artifact)
-        ),
-
-        // Hints Section - Only show if hints exist
-        challenge.data.hints && challenge.data.hints.length > 0 && React.createElement('div', {
-          style: {
-            background: 'rgba(31, 41, 55, 0.6)',
-            borderRadius: '20px',
-            padding: '30px',
-            marginBottom: '20px'
-          }
-        },
-          React.createElement('h3', {
-            style: {
-              marginBottom: '15px',
-              color: '#c084fc'
-            }
-          }, '💡 Hints'),
-          challenge.data.hints.map(function(hint, i) {
-            const show = revealedHints.includes(i);
-            return React.createElement('div', {
-              key: i,
-              style: { marginBottom: '10px' }
-            },
-              React.createElement('button', {
-                onClick: function() { toggleHint(i); },
-                style: {
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  border: show ? '2px solid #3b82f6' : '2px solid #4b5563',
-                  background: show ? 'rgba(59, 130, 246, 0.2)' : 'rgba(55, 65, 81, 0.5)',
-                  color: 'white',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  fontWeight: 'bold'
-                }
-              }, (show ? '🔓 ' : '🔒 ') + 'Hint ' + (i + 1)),
-              show && React.createElement('div', {
-                style: {
-                  padding: '12px',
-                  marginTop: '10px',
-                  background: 'rgba(59, 130, 246, 0.1)',
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }
-              }, hint)
-            );
-          })
-        ),
-
-        // Source Attribution
-        React.createElement('div', {
-          style: {
-            background: 'rgba(31, 41, 55, 0.6)',
-            borderRadius: '20px',
-            padding: '20px',
-            marginBottom: '20px',
-            borderLeft: '4px solid #fbbf24'
-          }
-        },
-          React.createElement('div', {
-            style: {
-              fontSize: '12px',
-              color: '#fbbf24',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }
-          },
-            '📚',
-            React.createElement('strong', null, 'Source: '),
-            React.createElement('span', {
-              style: { color: '#d1d5db' }
-            }, challenge.data.source)
-          )
-        ),
-
-        // Flag Submission Section
-        React.createElement('div', {
-          style: {
-            background: 'rgba(31, 41, 55, 0.8)',
             borderRadius: '20px',
             padding: '40px',
-            textAlign: 'center'
-          }
-        },
-          React.createElement('h3', {
-            style: {
-              fontSize: '28px',
-              marginBottom: '20px'
-            }
-          }, '🚩 Capture The Flag'),
-          
-          attempts >= MAX_ATTEMPTS && React.createElement('p', {
-            style: {
-              color: '#ef4444',
-              marginBottom: '15px',
-              fontWeight: 'bold'
-            }
-          }, '🚫 Maximum attempts reached. Challenge locked.'),
+            border: '1px solid rgba(168, 85, 247, 0.3)'
+          }}>
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ marginBottom: '15px', color: '#c084fc' }}>Category</h3>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '10px'
+              }}>
+                {categories.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCategory(c.id)}
+                    style={{
+                      padding: '15px',
+                      borderRadius: '10px',
+                      border: selectedCategory === c.id ? '2px solid white' : '2px solid #4b5563',
+                      background: selectedCategory === c.id 
+                        ? 'linear-gradient(to right, #a855f7, #ec4899)' 
+                        : 'rgba(55, 65, 81, 0.5)',
+                      color: 'white',
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {c.emoji} {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          flagStatus === null && attempts < MAX_ATTEMPTS ? React.createElement('div', {
-            style: {
-              maxWidth: '500px',
-              margin: '0 auto'
-            }
-          },
-            React.createElement('p', {
-              style: {
+            <div style={{ marginBottom: '30px' }}>
+              <h3 style={{ marginBottom: '15px', color: '#c084fc' }}>Difficulty</h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                {['easy', 'medium', 'hard'].map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    style={{
+                      flex: 1,
+                      padding: '15px',
+                      borderRadius: '10px',
+                      border: difficulty === d ? '2px solid white' : '2px solid #4b5563',
+                      background: difficulty === d 
+                        ? 'linear-gradient(to right, #10b981, #3b82f6)' 
+                        : 'rgba(55, 65, 81, 0.5)',
+                      color: 'white',
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={generate}
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '20px',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                borderRadius: '10px',
+                border: 'none',
+                background: loading 
+                  ? '#4b5563' 
+                  : 'linear-gradient(to right, #9333ea, #ec4899)',
+                color: 'white',
+                cursor: loading ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {loading ? '⏳ Generating...' : '🎲 Generate Challenge'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            {/* Challenge Header */}
+            <div style={{
+              background: 'rgba(147, 51, 234, 0.2)',
+              borderRadius: '20px',
+              padding: '30px',
+              marginBottom: '20px',
+              border: '1px solid rgba(168, 85, 247, 0.3)'
+            }}>
+              <h2 style={{ fontSize: '32px', marginBottom: '15px' }}>
+                {challenge.data.title}
+              </h2>
+              <div style={{
+                display: 'flex',
+                gap: '10px',
+                marginBottom: '20px',
+                flexWrap: 'wrap'
+              }}>
+                <span style={{
+                  padding: '5px 15px',
+                  background: 'rgba(168, 85, 247, 0.3)',
+                  borderRadius: '20px',
+                  fontSize: '12px'
+                }}>
+                  {challenge.category.toUpperCase()}
+                </span>
+                <span style={{
+                  padding: '5px 15px',
+                  background: 'rgba(59, 130, 246, 0.3)',
+                  borderRadius: '20px',
+                  fontSize: '12px'
+                }}>
+                  {challenge.difficulty.toUpperCase()}
+                </span>
+                <span style={{
+                  padding: '5px 15px',
+                  background: 'rgba(234, 179, 8, 0.3)',
+                  borderRadius: '20px',
+                  fontSize: '12px'
+                }}>
+                  ⚡ {challenge.data.points} pts
+                </span>
+              </div>
+              <div style={{
+                background: 'rgba(0,0,0,0.5)',
+                padding: '15px',
+                borderRadius: '10px',
+                marginBottom: '15px'
+              }}>
+                <strong>📖 Story: </strong>
+                {challenge.data.storyline}
+              </div>
+              <div style={{
+                background: 'rgba(0,0,0,0.5)',
+                padding: '15px',
+                borderRadius: '10px'
+              }}>
+                <strong>🎯 Mission: </strong>
+                {challenge.data.mission}
+              </div>
+            </div>
+
+            {/* Step-by-Step Guide */}
+            <div style={{
+              background: 'rgba(31, 41, 55, 0.6)',
+              borderRadius: '20px',
+              padding: '30px',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ marginBottom: '15px', color: '#3b82f6' }}>
+                📋 Step-by-Step Guide
+              </h3>
+              {challenge.data.steps.map((s, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '12px',
+                    marginBottom: '10px',
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '8px',
+                    borderLeft: '3px solid #3b82f6',
+                    fontFamily: 'monospace',
+                    fontSize: '14px'
+                  }}
+                >
+                  {i + 1}. {s}
+                </div>
+              ))}
+            </div>
+
+            {/* Artifact Display */}
+            <div style={{
+              background: 'rgba(31, 41, 55, 0.6)',
+              borderRadius: '20px',
+              padding: '30px',
+              marginBottom: '20px',
+              border: '2px solid rgba(236, 72, 153, 0.4)'
+            }}>
+              <h3 style={{
                 marginBottom: '15px',
-                color: attempts >= MAX_ATTEMPTS ? '#ef4444' : '#d1d5db'
-              }
-            }, 'Attempts left: ' + (MAX_ATTEMPTS - attempts) + ' / ' + MAX_ATTEMPTS),
-            React.createElement('input', {
-              type: 'text',
-              value: flagInput,
-              disabled: attempts >= MAX_ATTEMPTS,
-              onChange: function(e) { setFlagInput(e.target.value); },
-              onKeyDown: function(e) {
-                if (e.key === 'Enter') submit();
-              },
-              placeholder: 'CTF{...}',
-              style: {
-                width: '100%',
-                padding: '15px',
+                color: '#ec4899',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                📦 Challenge Artifact
+                <span style={{
+                  fontSize: '12px',
+                  padding: '4px 12px',
+                  background: 'rgba(236, 72, 153, 0.2)',
+                  borderRadius: '12px',
+                  fontWeight: 'normal'
+                }}>
+                  Analyze this carefully
+                </span>
+              </h3>
+              <div style={{
+                background: '#1a1a1a',
+                padding: '20px',
                 borderRadius: '10px',
-                border: '2px solid rgba(168, 85, 247, 0.5)',
-                background: 'rgba(0,0,0,0.7)',
-                color: 'white',
-                fontSize: '16px',
-                marginBottom: '15px'
-              }
-            }),
-            React.createElement('button', {
-              onClick: submit,
-              disabled: !flagInput.trim(),
-              style: {
-                width: '100%',
-                padding: '15px',
-                borderRadius: '10px',
-                border: 'none',
-                background: flagInput.trim() ? 'linear-gradient(to right, #9333ea, #ec4899)' : '#4b5563',
-                color: 'white',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                cursor: flagInput.trim() ? 'pointer' : 'not-allowed'
-              }
-            }, '🚩 Submit')
-          ) : flagStatus === 'correct' ? React.createElement('div', null,
-            React.createElement('div', {
-              style: { fontSize: '80px' }
-            }, '✅'),
-            React.createElement('h4', {
-              style: {
-                fontSize: '32px',
+                border: '1px solid rgba(168, 85, 247, 0.3)',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                lineHeight: '1.6',
                 color: '#10b981',
-                marginBottom: '10px'
-              }
-            }, 'Flag Captured!'),
-            React.createElement('p', {
-              style: {
-                fontSize: '18px',
-                marginBottom: '15px'
-              }
-            }, 'You solved it!'),
-            React.createElement('code', {
-              style: {
-                padding: '10px 20px',
-                background: 'rgba(16, 185, 129, 0.2)',
-                borderRadius: '8px',
-                display: 'inline-block',
-                marginBottom: '15px'
-              }
-            }, challenge.data.flag),
-            React.createElement('div', {
-              style: {
-                fontSize: '24px',
+                overflowX: 'auto',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word'
+              }}>
+                {challenge.data.artifact}
+              </div>
+            </div>
+
+            {/* Hints Section */}
+            {challenge.data.hints && challenge.data.hints.length > 0 && (
+              <div style={{
+                background: 'rgba(31, 41, 55, 0.6)',
+                borderRadius: '20px',
+                padding: '30px',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ marginBottom: '15px', color: '#c084fc' }}>
+                  💡 Hints
+                </h3>
+                {challenge.data.hints.map((hint, i) => {
+                  const show = revealedHints.includes(i);
+                  return (
+                    <div key={i} style={{ marginBottom: '10px' }}>
+                      <button
+                        onClick={() => toggleHint(i)}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          borderRadius: '8px',
+                          border: show ? '2px solid #3b82f6' : '2px solid #4b5563',
+                          background: show 
+                            ? 'rgba(59, 130, 246, 0.2)' 
+                            : 'rgba(55, 65, 81, 0.5)',
+                          color: 'white',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          fontWeight: 'bold'
+                        }}
+                      >
+                        {show ? '🔓 ' : '🔒 '}Hint {i + 1}
+                      </button>
+                      {show && (
+                        <div style={{
+                          padding: '12px',
+                          marginTop: '10px',
+                          background: 'rgba(59, 130, 246, 0.1)',
+                          borderRadius: '8px',
+                          fontSize: '14px'
+                        }}>
+                          {hint}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Source Attribution */}
+            <div style={{
+              background: 'rgba(31, 41, 55, 0.6)',
+              borderRadius: '20px',
+              padding: '20px',
+              marginBottom: '20px',
+              borderLeft: '4px solid #fbbf24'
+            }}>
+              <div style={{
+                fontSize: '12px',
                 color: '#fbbf24',
-                marginBottom: '20px'
-              }
-            }, '+' + challenge.data.points + ' Points'),
-            React.createElement('button', {
-              onClick: reset,
-              style: {
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: 'none',
-                background: 'linear-gradient(to right, #9333ea, #ec4899)',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }
-            }, '🎲 New Challenge')
-          ) : React.createElement('div', null,
-            React.createElement('div', {
-              style: { fontSize: '80px' }
-            }, '❌'),
-            React.createElement('h4', {
-              style: {
-                fontSize: '32px',
-                color: '#ef4444',
-                marginBottom: '10px'
-              }
-            }, 'Incorrect'),
-            React.createElement('p', {
-              style: { marginBottom: '15px' }
-            }, 'Try again!'),
-            React.createElement('code', {
-              style: {
-                padding: '10px 20px',
-                background: 'rgba(239, 68, 68, 0.2)',
-                borderRadius: '8px',
-                display: 'inline-block',
-                marginBottom: '20px'
-              }
-            }, flagInput),
-            React.createElement('br'),
-            React.createElement('button', {
-              onClick: function() {
-                setFlagStatus(null);
-                setFlagInput('');
-              },
-              style: {
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: 'none',
-                background: 'linear-gradient(to right, #9333ea, #ec4899)',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                marginRight: '10px'
-              }
-            }, '🔄 Try Again'),
-            attempts < MAX_ATTEMPTS && React.createElement('button', {
-              onClick: reset,
-              style: {
-                padding: '12px 24px',
-                borderRadius: '10px',
-                border: '2px solid #4b5563',
-                background: 'transparent',
-                color: 'white',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }
-            }, '↩️ Back to Menu')
-          )
-        )
-      )
-    )
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                📚
+                <strong>Source: </strong>
+                <span style={{ color: '#d1d5db' }}>
+                  {challenge.data.source}
+                </span>
+              </div>
+            </div>
+
+            {/* Flag Submission Section */}
+            <div style={{
+              background: 'rgba(31, 41, 55, 0.8)',
+              borderRadius: '20px',
+              padding: '40px',
+              textAlign: 'center'
+            }}>
+              <h3 style={{ fontSize: '28px', marginBottom: '20px' }}>
+                🚩 Capture The Flag
+              </h3>
+
+              {attempts >= MAX_ATTEMPTS && (
+                <p style={{
+                  color: '#ef4444',
+                  marginBottom: '15px',
+                  fontWeight: 'bold'
+                }}>
+                  🚫 Maximum attempts reached. Challenge locked.
+                </p>
+              )}
+
+              {flagStatus === null && attempts < MAX_ATTEMPTS ? (
+                <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+                  <p style={{
+                    marginBottom: '15px',
+                    color: attempts >= MAX_ATTEMPTS ? '#ef4444' : '#d1d5db'
+                  }}>
+                    Attempts left: {MAX_ATTEMPTS - attempts} / {MAX_ATTEMPTS}
+                  </p>
+                  <input
+                    type="text"
+                    value={flagInput}
+                    disabled={attempts >= MAX_ATTEMPTS}
+                    onChange={(e) => setFlagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') submit();
+                    }}
+                    placeholder="CTF{...}"
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      borderRadius: '10px',
+                      border: '2px solid rgba(168, 85, 247, 0.5)',
+                      background: 'rgba(0,0,0,0.7)',
+                      color: 'white',
+                      fontSize: '16px',
+                      marginBottom: '15px'
+                    }}
+                  />
+                  <button
+                    onClick={submit}
+                    disabled={!flagInput.trim()}
+                    style={{
+                      width: '100%',
+                      padding: '15px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: flagInput.trim() 
+                        ? 'linear-gradient(to right, #9333ea, #ec4899)' 
+                        : '#4b5563',
+                      color: 'white',
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      cursor: flagInput.trim() ? 'pointer' : 'not-allowed'
+                    }}
+                  >
+                    🚩 Submit
+                  </button>
+                </div>
+              ) : flagStatus === 'correct' ? (
+                <div>
+                  <div style={{ fontSize: '80px' }}>✅</div>
+                  <h4 style={{
+                    fontSize: '32px',
+                    color: '#10b981',
+                    marginBottom: '10px'
+                  }}>
+                    Flag Captured!
+                  </h4>
+                  <p style={{ fontSize: '18px', marginBottom: '15px' }}>
+                    You solved it!
+                  </p>
+                  <code style={{
+                    padding: '10px 20px',
+                    background: 'rgba(16, 185, 129, 0.2)',
+                    borderRadius: '8px',
+                    display: 'inline-block',
+                    marginBottom: '15px'
+                  }}>
+                    {challenge.data.flag}
+                  </code>
+                  <div style={{
+                    fontSize: '24px',
+                    color: '#fbbf24',
+                    marginBottom: '20px'
+                  }}>
+                    +{challenge.data.points} Points
+                  </div>
+                  <button
+                    onClick={reset}
+                    style={{
+                      padding: '12px 24px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: 'linear-gradient(to right, #9333ea, #ec4899)',
+                      color: 'white',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🎲 New Challenge
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: '80px' }}>❌</div>
+                  <h4 style={{
+                    fontSize: '32px',
+                    color: '#ef4444',
+                    marginBottom: '10px'
+                  }}>
+                    Incorrect
+                  </h4>
+                  <p style={{ marginBottom: '15px' }}>Try again!</p>
+                  <code style={{
+                    padding: '10px 20px',
+                    background: 'rgba(239, 68, 68, 0.2)',
+                    borderRadius: '8px',
+                    display: 'inline-block',
+                    marginBottom: '20px'
+                  }}>
+                    {flagInput}
+                  </code>
+                  <br />
+                  <button
+                    onClick={() => {
+                      setFlagStatus(null);
+                      setFlagInput('');
+                    }}
+                    style={{
+                      padding: '12px 24px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: 'linear-gradient(to right, #9333ea, #ec4899)',
+                      color: 'white',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      marginRight: '10px'
+                    }}
+                  >
+                    🔄 Try Again
+                  </button>
+                  {attempts < MAX_ATTEMPTS && (
+                    <button
+                      onClick={reset}
+                      style={{
+                        padding: '12px 24px',
+                        borderRadius: '10px',
+                        border: '2px solid #4b5563',
+                        background: 'transparent',
+                        color: 'white',
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ↩️ Back to Menu
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
-
-export default CTFGenerator;
