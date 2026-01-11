@@ -974,3 +974,7 @@ example.com/internal-notes (deleted)
     </div>
   );
 }
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(CTFGenerator));
+
