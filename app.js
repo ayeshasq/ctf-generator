@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function CTFGenerator() {
+function CTFGenerator() {
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('random');
