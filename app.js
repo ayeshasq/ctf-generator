@@ -180,15 +180,20 @@ Identify suspicious login activity and extract the embedded flag.
         "Identify unusual user activity",
         "Locate hidden artifacts"
       ],
-      artifact: `
+      artifacts: [
+  {
+    name: "auth.log",
+    description: "Recovered SSH authentication log fragment",
+    type: "text/plain",
+    content: `
 Mar 18 02:13:55 sshd[2219]: Failed password for root
 Mar 18 02:14:02 sshd[2219]: Accepted password for backup_user
 # FLAG embedded in comment
 # CTF{logs_never_lie}
-      `,
-      flag: "CTF{logs_never_lie}",
-      source: "Inspired by Linux auth.log analysis (DFIR training)"
-    },
+`
+  }
+],
+
 
     medium: {
       title: "Memory Remnants",
