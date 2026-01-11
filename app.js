@@ -1,4 +1,5 @@
-import { useState } from 'react';
+const { useState } = React;
+
 
 function CTFGenerator() {
   const [challenge, setChallenge] = useState(null);
