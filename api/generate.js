@@ -1,62 +1,50 @@
 export default function handler(req, res) {
-  const difficulty = req.query.difficulty || "easy";
+  const categories = ["web", "crypto", "forensics", "osint", "network"];
+  const difficulties = ["easy", "medium", "hard"];
 
-  const challenges = {
-    easy: {
-      title: "Web Login Bypass",
-      storyline: "Suspicious login attempts detected.",
-      mission: "Identify how the attacker bypassed authentication.",
-      artifact: {
-        content: "POST /login\nusername=admin' OR '1'='1&password=x",
-      },
-      flag: "CTF{sql_injection}",
-      points: 100,
-      hints: ["Look at the SQL logic", "What does OR '1'='1' do?"],
-      learning: {
-        explanation:
-          "SQL injection allows attackers to manipulate backend queries.",
-        mitre: ["T1190"],
-      },
-    },
+  const category =
+    req.query.category || categories[Math.floor(Math.random() * categories.length)];
+  const difficulty =
+    req.query.difficulty || difficulties[Math.floor(Math.random() * difficulties.length)];
 
-    medium: {
-      title: "Exposed JWT Token",
-      storyline: "A leaked token was found in logs.",
-      mission: "Decode and analyze the JWT.",
-      artifact: {
-        content:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4ifQ.signature",
-      },
-      flag: "CTF{jwt_misconfig}",
-      points: 250,
-      hints: ["Base64 decode", "Check alg field"],
-      learning: {
-        explanation:
-          "Improper JWT validation can allow privilege escalation.",
-        mitre: ["T1552"],
-      },
-    },
+  const points =
+    difficulty === "easy" ? 100 :
+    difficulty === "hard" ? 500 : 250;
 
-    hard: {
-      title: "Memory Dump Analysis",
-      storyline: "A system memory image was captured.",
-      mission: "Extract sensitive strings from memory.",
-      artifact: {
-        content: "strings memdump.raw | grep CTF",
-      },
-      flag: "CTF{memory_leak}",
-      points: 500,
-      hints: ["Use strings", "Search for secrets"],
-      learning: {
-        explanation:
-          "Memory forensics can reveal credentials and secrets.",
-        mitre: ["T1003"],
-      },
-    },
+  // Example artifacts for demo
+  const artifacts = [
+    { name: "login.log", content: "Failed login attempts detected on user admin" },
+    { name: "memory.dmp", content: "Simulated memory dump content" },
+    { name: "config.txt", content: "Sample configuration file" }
+  ];
+
+  const challenge = {
+    category,
+    difficulty,
+    title: `${category.toUpperCase()} Challenge`,
+    storyline: "A suspicious system behavior has been detected.",
+    description: "Analyze the provided artifacts and capture the flag.",
+    flag: `CTF{${category}_${difficulty}_123}`,
+    points,
+    hints: [
+      "Look closely at the data flow",
+      "Think like an attacker"
+    ],
+    artifact: artifacts,
+    steps: [
+      "Examine the artifacts",
+      "Identify vulnerabilities",
+      "Capture the flag"
+    ],
+    objectives: ["Analyze the scenario and capture the flag"],
+    flag_format: "CTF{...}",
+    learning: {
+      attack: "Credential Brute Force",
+      explanation: "Multiple failed login attempts followed by a success indicate brute forcing.",
+      mitigation: ["Enable MFA", "Apply account lockout policies", "Monitor authentication logs"],
+      mitre: ["T1110"]
+    }
   };
 
-  res.status(200).json({
-    success: true,
-    challenge: challenges[difficulty],
-  });
+  res.status(200).json({ success: true, challenge });
 }
