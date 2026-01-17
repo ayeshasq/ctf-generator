@@ -167,12 +167,17 @@ function CTFGenerator() {
 
             {/* Steps */}
             <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
-              <h3 className="text-blue-400 font-bold mb-4">📋 Step-by-Step Guide</h3>
-              {challenge.steps.map((s,i) => (
-                <div key={i} className="p-3 mb-2 bg-blue-900/10 rounded-lg border-l-4 border-blue-500 font-mono text-sm">
-                  {i+1}. {s}
-                </div>
-              ))}
+              <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
+  <h3 className="text-blue-400 font-bold mb-4">📋 Investigation Checklist</h3>
+
+  {challenge.steps.map((step, i) => (
+    <label key={i} className="flex gap-3 mb-3">
+      <input type="checkbox" />
+      <span>{i + 1}. {step}</span>
+    </label>
+  ))}
+</div>
+
             </div>
 
             {/* Artifact */}
