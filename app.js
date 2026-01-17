@@ -175,7 +175,7 @@ function CTFGenerator() {
               onClick={home}
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 font-bold"
             >
-              🏠 Home
+                Home
             </button>
           </div>
         </div>
