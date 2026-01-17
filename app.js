@@ -1,136 +1,340 @@
-export default function handler(req, res) {
-  const { category = "random", difficulty = "medium" } = req.query;
+const { useState } = React;
 
-  const challenges = {
-    web: {
-      easy: {
-        title: "Exposed Admin Panel",
-        storyline:
-          "A junior developer accidentally deployed an admin panel without authentication.",
-        objectives: [
-          "Identify the exposed endpoint",
-          "Inspect the client-side code",
-          "Extract the hidden credential"
-        ],
-        steps: [
-          "View page source",
-          "Search for hardcoded secrets",
-          "Use credentials to authenticate"
-        ],
-        artifact: `
-<!-- index.html -->
-<script>
-  const adminPassword = "admin123";
-</script>
-        `,
-        flag: "CTF{hardcoded_secrets}",
-        flag_format: "CTF{...}",
-        points: 100,
-        hints: [
-          "Client-side code can leak secrets",
-          "Search for suspicious variables"
-        ],
-        learning: {
-          attack: "Hardcoded Credentials",
-          explanation:
-            "Secrets embedded in frontend code can be extracted by attackers.",
-          mitigation: [
-            "Never store secrets in frontend code",
-            "Use environment variables",
-            "Perform code reviews"
-          ],
-          mitre: ["T1552"]
-        }
-      },
+// ArtifactItem component to fix hook-in-map issue
+function ArtifactItem({ content, index }) {
+  const [expanded, setExpanded] = React.useState(false);
 
-      medium: {
-        title: "JWT Misconfiguration",
-        storyline:
-          "An application uses JWTs but may not be validating them correctly.",
-        objectives: [
-          "Analyze the JWT",
-          "Modify payload claims",
-          "Bypass authorization"
-        ],
-        steps: [
-          "Decode the JWT",
-          "Change the role claim",
-          "Re-sign or bypass verification"
-        ],
-        artifact: `
-eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJyb2xlIjoi
-dXNlciIsInVzZXIiOiJndWVzdCJ9.
-        `,
-        flag: "CTF{jwt_none_alg}",
-        flag_format: "CTF{...}",
-        points: 250,
-        hints: [
-          "Check the algorithm field",
-          "Is the signature actually verified?"
-        ],
-        learning: {
-          attack: "JWT None Algorithm",
-          explanation:
-            "JWTs using 'none' algorithm can be modified without signature.",
-          mitigation: [
-            "Disallow none algorithm",
-            "Enforce strong JWT validation"
-          ],
-          mitre: ["T1552"]
-        }
-      },
+  return (
+    <div className="mb-4">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className={`w-full p-3 rounded-lg text-left font-bold ${
+          expanded ? 'bg-pink-600/30' : 'bg-gray-700/50'
+        } border-2 border-pink-500`}
+      >
+        {expanded ? '📂 ' : '📁 '} Artifact {index + 1}
+      </button>
 
-      hard: {
-        title: "Blind SQL Injection",
-        storyline:
-          "A login endpoint behaves strangely when special characters are used.",
-        objectives: [
-          "Identify injection point",
-          "Extract admin password",
-          "Login as admin"
-        ],
-        steps: [
-          "Test boolean conditions",
-          "Infer database responses",
-          "Extract sensitive data"
-        ],
-        artifact: `
-POST /login
-username=admin' AND 1=1--&password=test
-        `,
-        flag: "CTF{blind_sql_success}",
-        flag_format: "CTF{...}",
-        points: 500,
-        hints: [
-          "Boolean logic is key",
-          "Observe response differences"
-        ],
-        learning: {
-          attack: "SQL Injection",
-          explanation:
-            "Improper input sanitization allows attackers to manipulate SQL queries.",
-          mitigation: [
-            "Use prepared statements",
-            "Input validation",
-            "WAF deployment"
-          ],
-          mitre: ["T1190"]
-        }
-      }
-    }
-  };
-
-  const selectedCategory =
-    category === "random"
-      ? Object.keys(challenges)[0]
-      : category;
-
-  const challenge =
-    challenges[selectedCategory]?.[difficulty] ||
-    challenges.web.medium;
-
-  res.status(200).json({
-    success: true,
-    challenge
-  });
+      {expanded && (
+        <div className="mt-2 relative">
+          <pre className="bg-black/90 p-4 rounded-lg font-mono text-sm text-green-400 overflow-x-auto whitespace-pre-wrap break-words">
+            {content}
+          </pre>
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(content);
+              alert('Copied to clipboard!');
+            }}
+            className="absolute top-2 right-2 px-3 py-1 text-xs rounded-lg bg-purple-700 hover:bg-purple-600"
+          >
+            📋 Copy
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
+
+function CTFGenerator() {
+  const [challenge, setChallenge] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('random');
+  const [difficulty, setDifficulty] = useState('medium');
+  const [flagInput, setFlagInput] = useState('');
+  const [flagStatus, setFlagStatus] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const [revealedHints, setRevealedHints] = useState([]);
+
+  const MAX_ATTEMPTS = 3;
+
+  const categories = [
+    { id: 'random', name: 'Random', emoji: '🎲' },
+    { id: 'web', name: 'Web Exploitation', emoji: '🕷️' },
+    { id: 'forensics', name: 'Forensics', emoji: '🔍' },
+    { id: 'crypto', name: 'Cryptography', emoji: '🔐' },
+    { id: 'network', name: 'Network Analysis', emoji: '🌐' },
+    { id: 'osint', name: 'OSINT', emoji: '🧠' },
+  ];
+
+  async function generate() {
+    setLoading(true);
+    setFlagInput('');
+    setFlagStatus(null);
+    setAttempts(0);
+    setRevealedHints([]);
+
+    try {
+      const params = new URLSearchParams();
+      if (selectedCategory !== 'random') params.append('category', selectedCategory);
+      if (difficulty) params.append('difficulty', difficulty);
+
+      const res = await fetch(`/api/generate?${params.toString()}`);
+      const data = await res.json();
+
+      if (data.success) {
+        // Provide fallback defaults for missing fields
+        const ch = data.challenge;
+        ch.objectives = ch.objectives || ['Analyze the scenario and capture the flag'];
+        ch.flag_format = ch.flag_format || 'CTF{...}';
+        ch.steps = ch.steps || ['Step 1: Examine the artifact', 'Step 2: Analyze the data', 'Step 3: Capture the flag'];
+        ch.artifact = ch.artifact || 'No artifact provided';
+        ch.hints = ch.hints || [];
+        ch.learning = ch.learning || {
+          attack: 'Example Attack',
+          explanation: 'Learning summary placeholder.',
+          mitigation: ['Mitigation 1', 'Mitigation 2'],
+          mitre: ['TXXXX'],
+        };
+        setChallenge(ch);
+      } else {
+        alert('Failed to generate challenge');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error fetching challenge');
+    }
+
+    setLoading(false);
+  }
+
+  function submit() {
+    if (attempts >= MAX_ATTEMPTS || !challenge) return;
+
+    const isCorrect = flagInput.trim() === challenge.flag?.trim();
+    setAttempts(prev => prev + 1);
+    setFlagStatus(isCorrect ? 'correct' : 'incorrect');
+  }
+
+  function reset() {
+    setChallenge(null);
+    setFlagInput('');
+    setFlagStatus(null);
+    setAttempts(0);
+    setRevealedHints([]);
+  }
+
+  function toggleHint(i) {
+    if (revealedHints.includes(i)) {
+      setRevealedHints(revealedHints.filter(x => x !== i));
+    } else {
+      setRevealedHints([...revealedHints, i]);
+    }
+  }
+
+  if (challenge && !challenge.flag) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-700 to-purple-900 text-white p-5 font-sans">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-center py-10">
+          <h1 className="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-purple-300 to-pink-400">
+            AI CTF Challenge Generator
+          </h1>
+          <p className="text-lg text-gray-300">Generate unique hacking challenges in seconds</p>
+        </div>
+
+        {!challenge ? (
+          <div className="bg-gray-800/60 rounded-2xl p-10 border border-purple-700/30">
+            {/* Category Selection */}
+            <div className="mb-8">
+              <h3 className="mb-4 text-purple-300 font-bold">Category</h3>
+              <div className="grid grid-cols-3 gap-3">
+                {categories.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCategory(c.id)}
+                    className={`p-4 rounded-xl font-bold text-white ${
+                      selectedCategory === c.id
+                        ? 'bg-gradient-to-r from-purple-700 to-pink-500 border-2 border-white'
+                        : 'bg-gray-700/50 border-2 border-gray-600'
+                    }`}
+                  >
+                    {c.emoji} {c.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Difficulty Selection */}
+            <div className="mb-8">
+              <h3 className="mb-4 text-purple-300 font-bold">Difficulty</h3>
+              <div className="flex gap-3">
+                {['easy', 'medium', 'hard'].map(d => (
+                  <button
+                    key={d}
+                    onClick={() => setDifficulty(d)}
+                    className={`flex-1 p-4 rounded-xl font-bold text-white ${
+                      difficulty === d
+                        ? 'bg-gradient-to-r from-green-500 to-blue-500 border-2 border-white'
+                        : 'bg-gray-700/50 border-2 border-gray-600'
+                    }`}
+                  >
+                    {d.charAt(0).toUpperCase() + d.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={generate}
+              disabled={loading}
+              className={`w-full p-5 text-lg font-bold rounded-xl ${
+                loading ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-purple-700 to-pink-500'
+              } `}
+            >
+              {loading ? '⏳ Generating...' : '🎲 Generate Challenge'}
+            </button>
+          </div>
+        ) : (
+          <div>
+            {/* Challenge Display */}
+            <div className="bg-purple-900/20 p-8 rounded-2xl border border-purple-700/30 mb-6">
+              <h2 className="text-3xl font-bold mb-4">{challenge.title}</h2>
+              <div className="flex flex-wrap gap-3 mb-4">
+                <span className="px-4 py-1 bg-purple-700/40 rounded-full text-xs">{challenge.category.toUpperCase()}</span>
+                <span className="px-4 py-1 bg-blue-700/30 rounded-full text-xs">{challenge.difficulty.toUpperCase()}</span>
+                <span className="px-4 py-1 bg-yellow-700/30 rounded-full text-xs">⚡ {challenge.points} pts</span>
+              </div>
+
+              {/* Scenario / Mission / Success */}
+              <div className="bg-black/50 p-5 rounded-lg mb-4">
+                <h4 className="text-purple-300 font-bold mb-2">📖 Scenario</h4>
+                <p>{challenge.storyline}</p>
+              </div>
+
+              <div className="bg-black/50 p-5 rounded-lg mb-4">
+                <h4 className="text-blue-400 font-bold mb-2">🎯 Mission Objectives</h4>
+                <ul className="list-disc list-inside">
+                  {challenge.objectives.map((obj, i) => (
+                    <li key={i}>{obj}</li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-black/50 p-5 rounded-lg mb-6">
+                <h4 className="text-green-400 font-bold mb-2">✅ Success Criteria</h4>
+                Submit the correct flag in format:
+                <code className="ml-2 px-2 py-1 bg-black rounded">{challenge.flag_format}</code>
+              </div>
+
+              {/* Steps */}
+              <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
+                <h3 className="text-blue-400 font-bold mb-4">📋 Investigation Checklist</h3>
+                {challenge.steps.map((step, i) => (
+                  <label key={i} className="flex gap-3 mb-3">
+                    <input type="checkbox" />
+                    <span>{i + 1}. {step}</span>
+                  </label>
+                ))}
+              </div>
+
+              {/* Artifacts */}
+              <div className="bg-gray-800/60 p-8 rounded-2xl mb-6 border-2 border-pink-600/30">
+                <h3 className="text-pink-400 font-bold mb-4">📦 Artifact</h3>
+                {Array.isArray(challenge.artifact)
+                  ? challenge.artifact.map((a, i) => <ArtifactItem key={i} content={a} index={i} />)
+                  : <ArtifactItem content={challenge.artifact} index={0} />
+                }
+              </div>
+
+              {/* Hints */}
+              {challenge.hints.length > 0 && (
+                <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
+                  <h3 className="text-purple-300 font-bold mb-4">💡 Hints</h3>
+                  {challenge.hints.map((hint, i) => {
+                    const show = revealedHints.includes(i);
+                    return (
+                      <div key={i} className="mb-3">
+                        <button
+                          onClick={() => toggleHint(i)}
+                          className={`w-full p-3 rounded-lg font-bold text-white ${
+                            show ? 'bg-blue-500/20 border-2 border-blue-500' : 'bg-gray-700/50 border-2 border-gray-600'
+                          }`}
+                        >
+                          {show ? '🔓 ' : '🔒 '}Hint {i + 1}
+                        </button>
+                        {show && <div className="p-3 mt-2 bg-blue-900/20 rounded-lg text-sm">{hint}</div>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Flag Submission */}
+              <div className="bg-gray-800/80 p-10 rounded-2xl text-center">
+                <h3 className="text-2xl mb-6">🚩 Capture The Flag</h3>
+
+                {attempts >= MAX_ATTEMPTS && (
+                  <p className="text-red-500 font-bold mb-3">🚫 Maximum attempts reached. Challenge locked.</p>
+                )}
+
+                {flagStatus === null && attempts < MAX_ATTEMPTS ? (
+                  <div className="max-w-md mx-auto">
+                    <p className="mb-3 text-gray-300">Attempts left: {MAX_ATTEMPTS - attempts} / {MAX_ATTEMPTS}</p>
+                    <input
+                      type="text"
+                      value={flagInput}
+                      disabled={attempts >= MAX_ATTEMPTS}
+                      onChange={e => setFlagInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') submit(); }}
+                      placeholder="CTF{...}"
+                      className="w-full p-3 rounded-lg border-2 border-purple-700/50 bg-black/70 text-white mb-4"
+                    />
+                    <button
+                      onClick={submit}
+                      disabled={!flagInput.trim()}
+                      className={`w-full p-3 rounded-lg font-bold text-white ${flagInput.trim() ? 'bg-gradient-to-r from-purple-700 to-pink-500' : 'bg-gray-600 cursor-not-allowed'}`}
+                    >
+                      🚩 Submit
+                    </button>
+                  </div>
+                ) : flagStatus === 'correct' ? (
+                  <div>
+                    <div className="text-6xl">✅</div>
+                    <h4 className="text-3xl text-green-500 mb-3">Flag Captured!</h4>
+                    <p className="mb-3">You solved it!</p>
+                    <code className="p-3 bg-green-500/20 rounded-lg inline-block mb-3">{challenge.flag}</code>
+                    <div className="text-2xl text-yellow-400 mb-6">+{challenge.points} Points</div>
+
+                    {/* Learning Summary */}
+                    <div className="mt-6 bg-black/60 p-6 rounded-xl text-left">
+                      <h4 className="text-yellow-400 font-bold mb-3">📘 What You Learned</h4>
+                      <p><strong>Attack:</strong> {challenge.learning.attack}</p>
+                      <p className="my-2">{challenge.learning.explanation}</p>
+                      <h5 className="font-bold text-green-400">🛡️ Mitigation</h5>
+                      <ul className="list-disc list-inside">
+                        {challenge.learning.mitigation.map((m, i) => <li key={i}>{m}</li>)}
+                      </ul>
+                      <p className="mt-3 text-sm text-purple-300">
+                        MITRE ATT&CK: {challenge.learning.mitre.join(", ")}
+                      </p>
+                    </div>
+
+                    <button onClick={reset} className="px-5 py-3 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 font-bold mt-6">🎲 New Challenge</button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-6xl">❌</div>
+                    <h4 className="text-3xl text-red-500 mb-3">Incorrect</h4>
+                    <p className="mb-3">Try again!</p>
+                    <code className="p-3 bg-red-500/20 rounded-lg inline-block mb-3">{flagInput}</code>
+                    <div className="flex justify-center gap-3">
+                      <button onClick={() => { setFlagStatus(null); setFlagInput(''); }} className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 font-bold">🔄 Try Again</button>
+                      {attempts < MAX_ATTEMPTS && <button onClick={reset} className="px-4 py-2 rounded-lg border-2 border-gray-600 text-white font-bold">↩️ Back to Menu</button>}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Render
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(CTFGenerator));
