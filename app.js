@@ -157,12 +157,57 @@ function CTFGenerator() {
             </div>
 
             {/* Artifact */}
-            <div className="bg-gray-800/60 p-8 rounded-2xl mb-6 border-2 border-pink-600/30">
-              <h3 className="text-pink-400 font-bold mb-4">📦 Artifact</h3>
-              <pre className="bg-black/80 p-4 rounded-lg font-mono text-sm text-green-400 overflow-x-auto whitespace-pre-wrap break-words">
-                {challenge.artifact}
-              </pre>
-            </div>
+<div className="bg-gray-800/60 p-8 rounded-2xl mb-6 border-2 border-pink-600/30">
+  <h3 className="text-pink-400 font-bold mb-4">📦 Artifact</h3>
+
+  {/* Support multiple artifacts if challenge.artifact is array */}
+  {Array.isArray(challenge.artifact) ? challenge.artifact.map((a, i) => {
+    const [expanded, setExpanded] = React.useState(false);
+
+    return (
+      <div key={i} className="mb-4">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className={`w-full p-3 rounded-lg text-left font-bold ${expanded ? 'bg-pink-600/30' : 'bg-gray-700/50'} border-2 border-pink-500`}
+        >
+          {expanded ? '📂 ' : '📁 '} Artifact {i+1}
+        </button>
+
+        {expanded && (
+          <div className="mt-2 relative">
+            <pre className="bg-black/90 p-4 rounded-lg font-mono text-sm text-green-400 overflow-x-auto whitespace-pre-wrap break-words">
+              {a}
+            </pre>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(a);
+                alert('Copied to clipboard!');
+              }}
+              className="absolute top-2 right-2 px-3 py-1 text-xs rounded-lg bg-purple-700 hover:bg-purple-600"
+            >
+              📋 Copy
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }) : (
+    <div className="relative">
+      <pre className="bg-black/90 p-4 rounded-lg font-mono text-sm text-green-400 overflow-x-auto whitespace-pre-wrap break-words">
+        {challenge.artifact}
+      </pre>
+      <button
+        onClick={() => {
+          navigator.clipboard.writeText(challenge.artifact);
+          alert('Copied to clipboard!');
+        }}
+        className="absolute top-2 right-2 px-3 py-1 text-xs rounded-lg bg-purple-700 hover:bg-purple-600"
+      >
+        📋 Copy
+      </button>
+    </div>
+  )}
+</div>
 
             {/* Hints */}
             {challenge.hints && challenge.hints.length > 0 && (
