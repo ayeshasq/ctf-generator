@@ -142,9 +142,28 @@ function CTFGenerator() {
                 <span className="px-4 py-1 bg-blue-700/30 rounded-full text-xs">{challenge.difficulty.toUpperCase()}</span>
                 <span className="px-4 py-1 bg-yellow-700/30 rounded-full text-xs">⚡ {challenge.points} pts</span>
               </div>
-              <div className="bg-black/50 p-4 rounded-lg mb-3"><strong>📖 Story:</strong> {challenge.storyline}</div>
-              <div className="bg-black/50 p-4 rounded-lg"><strong>🎯 Mission:</strong> {challenge.mission}</div>
-            </div>
+              <div className="bg-black/50 p-5 rounded-lg mb-4">
+  <h4 className="text-purple-300 font-bold mb-2">📖 Scenario</h4>
+  <p>{challenge.storyline}</p>
+</div>
+
+<div className="bg-black/50 p-5 rounded-lg mb-4">
+  <h4 className="text-blue-400 font-bold mb-2">🎯 Mission Objectives</h4>
+  <ul className="list-disc list-inside">
+    {challenge.objectives.map((obj, i) => (
+      <li key={i}>{obj}</li>
+    ))}
+  </ul>
+</div>
+
+<div className="bg-black/50 p-5 rounded-lg">
+  <h4 className="text-green-400 font-bold mb-2">✅ Success Criteria</h4>
+  Submit the correct flag in format:
+  <code className="ml-2 px-2 py-1 bg-black rounded">
+    {challenge.flag_format}
+  </code>
+</div>
+
 
             {/* Steps */}
             <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
