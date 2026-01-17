@@ -267,4 +267,115 @@ function CTFGenerator() {
               <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
                 <h3 className="text-blue-400 font-bold mb-4">📋 Investigation Checklist</h3>
                 {challenge.steps.map((step, i) => (
-                  <label key={i} className="f
+                  <label key={i} className="flex gap-3 mb-3">
+                    <input type="checkbox" />
+                    <span>{i + 1}. {step}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {tab === "artifacts" && (
+              <div className="bg-gray-800/60 p-8 rounded-2xl mb-6 border-2 border-pink-600/30">
+                <h3 className="text-pink-400 font-bold mb-4">📦 Artifacts</h3>
+                {challenge.artifact.map((a, i) => <ArtifactItem key={i} artifact={a} />)}
+              </div>
+            )}
+
+            {tab === "hints" && (
+              <div className="bg-gray-800/60 p-8 rounded-2xl mb-6">
+                <h3 className="text-purple-300 font-bold mb-4">💡 Hints</h3>
+                {challenge.hints.map((hint, i) => {
+                  const show = revealedHints.includes(i);
+                  return (
+                    <div key={i} className="mb-3">
+                      <button
+                        onClick={() => toggleHint(i)}
+                        className={`w-full p-3 rounded-lg font-bold text-white ${
+                          show ? "bg-blue-500/20 border-2 border-blue-500" : "bg-gray-700/50 border-2 border-gray-600"
+                        }`}
+                      >
+                        {show ? "🔓 " : "🔒 "}Hint {i + 1}
+                      </button>
+                      {show && <div className="p-3 mt-2 bg-blue-900/20 rounded-lg text-sm">{hint}</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {tab === "submit" && (
+              <div className="bg-gray-800/80 p-10 rounded-2xl text-center">
+                <h3 className="text-2xl mb-6">🚩 Capture The Flag</h3>
+
+                {attempts >= MAX_ATTEMPTS && (
+                  <p className="text-red-500 font-bold mb-3">🚫 Maximum attempts reached. Challenge locked.</p>
+                )}
+
+                {flagStatus === null && attempts < MAX_ATTEMPTS ? (
+                  <div className="max-w-md mx-auto">
+                    <p className="mb-3 text-gray-300">Attempts left: {MAX_ATTEMPTS - attempts} / {MAX_ATTEMPTS}</p>
+                    <input
+                      type="text"
+                      value={flagInput}
+                      disabled={attempts >= MAX_ATTEMPTS}
+                      onChange={e => setFlagInput(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") submit(); }}
+                      placeholder="CTF{...}"
+                      className="w-full p-3 rounded-lg border-2 border-purple-700/50 bg-black/70 text-white mb-4"
+                    />
+                    <button
+                      onClick={submit}
+                      disabled={!flagInput.trim()}
+                      className={`w-full p-3 rounded-lg font-bold text-white ${flagInput.trim() ? "bg-gradient-to-r from-purple-700 to-pink-500" : "bg-gray-600 cursor-not-allowed"}`}
+                    >
+                      🚩 Submit
+                    </button>
+                  </div>
+                ) : flagStatus === "correct" ? (
+                  <div>
+                    <div className="text-6xl">✅</div>
+                    <h4 className="text-3xl text-green-500 mb-3">Flag Captured!</h4>
+                    <p className="mb-3">You solved it!</p>
+                    <code className="p-3 bg-green-500/20 rounded-lg inline-block mb-3">{challenge.flag}</code>
+                    <div className="text-2xl text-yellow-400 mb-6">+{challenge.points} Points</div>
+
+                    {/* Learning Summary */}
+                    <div className="mt-6 bg-black/60 p-6 rounded-xl text-left">
+                      <h4 className="text-yellow-400 font-bold mb-3">📘 What You Learned</h4>
+                      <p><strong>Attack:</strong> {challenge.learning.attack}</p>
+                      <p className="my-2">{challenge.learning.explanation}</p>
+                      <h5 className="font-bold text-green-400">🛡️ Mitigation</h5>
+                      <ul className="list-disc list-inside">
+                        {challenge.learning.mitigation.map((m, i) => <li key={i}>{m}</li>)}
+                      </ul>
+                      <p className="mt-3 text-sm text-purple-300">MITRE ATT&CK: {challenge.learning.mitre.join(", ")}</p>
+                    </div>
+
+                    <button onClick={resetChallenge} className="px-5 py-3 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 font-bold mt-6">🎲 New Challenge</button>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-6xl">❌</div>
+                    <h4 className="text-3xl text-red-500 mb-3">Incorrect</h4>
+                    <p className="mb-3">Try again!</p>
+                    <code className="p-3 bg-red-500/20 rounded-lg inline-block mb-3">{flagInput}</code>
+                    <div className="flex justify-center gap-3">
+                      <button onClick={() => { setFlagStatus(null); setFlagInput(""); }} className="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 font-bold">🔄 Try Again</button>
+                      {attempts < MAX_ATTEMPTS && <button onClick={resetChallenge} className="px-4 py-2 rounded-lg border-2 border-gray-600 text-white font-bold">↩️ Back to Menu</button>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Render
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(React.createElement(CTFGenerator));
