@@ -1,150 +1,136 @@
-const { useState, useEffect } = React;
+export default function handler(req, res) {
+  const { category = "random", difficulty = "medium" } = req.query;
 
-const API_URL = "/api/generate";
+  const challenges = {
+    web: {
+      easy: {
+        title: "Exposed Admin Panel",
+        storyline:
+          "A junior developer accidentally deployed an admin panel without authentication.",
+        objectives: [
+          "Identify the exposed endpoint",
+          "Inspect the client-side code",
+          "Extract the hidden credential"
+        ],
+        steps: [
+          "View page source",
+          "Search for hardcoded secrets",
+          "Use credentials to authenticate"
+        ],
+        artifact: `
+<!-- index.html -->
+<script>
+  const adminPassword = "admin123";
+</script>
+        `,
+        flag: "CTF{hardcoded_secrets}",
+        flag_format: "CTF{...}",
+        points: 100,
+        hints: [
+          "Client-side code can leak secrets",
+          "Search for suspicious variables"
+        ],
+        learning: {
+          attack: "Hardcoded Credentials",
+          explanation:
+            "Secrets embedded in frontend code can be extracted by attackers.",
+          mitigation: [
+            "Never store secrets in frontend code",
+            "Use environment variables",
+            "Perform code reviews"
+          ],
+          mitre: ["T1552"]
+        }
+      },
 
-function App() {
-  const [challenge, setChallenge] = useState(null);
-  const [flagInput, setFlagInput] = useState("");
-  const [message, setMessage] = useState("");
-  const [points, setPoints] = useState(0);
-  const [view, setView] = useState("home");
+      medium: {
+        title: "JWT Misconfiguration",
+        storyline:
+          "An application uses JWTs but may not be validating them correctly.",
+        objectives: [
+          "Analyze the JWT",
+          "Modify payload claims",
+          "Bypass authorization"
+        ],
+        steps: [
+          "Decode the JWT",
+          "Change the role claim",
+          "Re-sign or bypass verification"
+        ],
+        artifact: `
+eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJyb2xlIjoi
+dXNlciIsInVzZXIiOiJndWVzdCJ9.
+        `,
+        flag: "CTF{jwt_none_alg}",
+        flag_format: "CTF{...}",
+        points: 250,
+        hints: [
+          "Check the algorithm field",
+          "Is the signature actually verified?"
+        ],
+        learning: {
+          attack: "JWT None Algorithm",
+          explanation:
+            "JWTs using 'none' algorithm can be modified without signature.",
+          mitigation: [
+            "Disallow none algorithm",
+            "Enforce strong JWT validation"
+          ],
+          mitre: ["T1552"]
+        }
+      },
 
-  /* 🔒 Load saved progress */
-  useEffect(() => {
-    const savedPoints = localStorage.getItem("ctf_points");
-    const savedChallenge = localStorage.getItem("ctf_challenge");
-    if (savedPoints) setPoints(parseInt(savedPoints));
-    if (savedChallenge) {
-      setChallenge(JSON.parse(savedChallenge));
-      setView("challenge");
+      hard: {
+        title: "Blind SQL Injection",
+        storyline:
+          "A login endpoint behaves strangely when special characters are used.",
+        objectives: [
+          "Identify injection point",
+          "Extract admin password",
+          "Login as admin"
+        ],
+        steps: [
+          "Test boolean conditions",
+          "Infer database responses",
+          "Extract sensitive data"
+        ],
+        artifact: `
+POST /login
+username=admin' AND 1=1--&password=test
+        `,
+        flag: "CTF{blind_sql_success}",
+        flag_format: "CTF{...}",
+        points: 500,
+        hints: [
+          "Boolean logic is key",
+          "Observe response differences"
+        ],
+        learning: {
+          attack: "SQL Injection",
+          explanation:
+            "Improper input sanitization allows attackers to manipulate SQL queries.",
+          mitigation: [
+            "Use prepared statements",
+            "Input validation",
+            "WAF deployment"
+          ],
+          mitre: ["T1190"]
+        }
+      }
     }
-  }, []);
+  };
 
-  /* 💾 Persist progress */
-  useEffect(() => {
-    localStorage.setItem("ctf_points", points);
-    if (challenge)
-      localStorage.setItem("ctf_challenge", JSON.stringify(challenge));
-  }, [points, challenge]);
+  const selectedCategory =
+    category === "random"
+      ? Object.keys(challenges)[0]
+      : category;
 
-  async function generateChallenge(level) {
-    const res = await fetch(`${API_URL}?difficulty=${level}`);
-    const data = await res.json();
-    setChallenge(data.challenge);
-    setView("challenge");
-    setMessage("");
-    setFlagInput("");
-  }
+  const challenge =
+    challenges[selectedCategory]?.[difficulty] ||
+    challenges.web.medium;
 
-  function submitFlag() {
-    if (flagInput.trim() === challenge.flag) {
-      setPoints(points + challenge.points);
-      setMessage("✅ Correct flag! Points awarded.");
-      localStorage.removeItem("ctf_challenge");
-    } else {
-      setMessage("❌ Incorrect flag. Try again.");
-    }
-  }
-
-  if (view === "home") {
-    return (
-      <div className="min-h-screen bg-black text-green-400 p-8">
-        <h1 className="text-4xl font-bold mb-6">🛡️ AI CTF Generator</h1>
-        <p className="mb-4">Total Points: {points}</p>
-
-        <div className="space-y-4">
-          <button onClick={() => generateChallenge("easy")} className="btn">
-            🟢 Easy Challenge
-          </button>
-          <button onClick={() => generateChallenge("medium")} className="btn">
-            🟡 Medium Challenge
-          </button>
-          <button onClick={() => generateChallenge("hard")} className="btn">
-            🔴 Hard Challenge
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-black text-green-400 p-8">
-      <button onClick={() => setView("home")} className="mb-4 underline">
-        ⬅ Home
-      </button>
-
-      <h2 className="text-3xl font-bold">{challenge.title}</h2>
-      <p className="italic mb-4">{challenge.storyline}</p>
-
-      <div className="bg-gray-900 p-4 rounded mb-4">
-        <h3 className="font-bold mb-2">📦 Artifact Provided</h3>
-        <pre className="bg-black p-3 rounded text-sm overflow-x-auto">
-          {challenge.artifact.content}
-        </pre>
-        {challenge.artifact.download && (
-          <a
-            href={challenge.artifact.download}
-            download
-            className="underline mt-2 inline-block"
-          >
-            ⬇ Download Artifact
-          </a>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <h3 className="font-bold">🎯 Mission</h3>
-        <p>{challenge.mission}</p>
-      </div>
-
-      <div className="mb-4">
-        <h3 className="font-bold">💡 Hints</h3>
-        <ul className="list-disc ml-5">
-          {challenge.hints.map((h, i) => (
-            <li key={i}>{h}</li>
-          ))}
-        </ul>
-      </div>
-
-      <input
-        className="w-full p-2 text-black"
-        placeholder="CTF{...}"
-        value={flagInput}
-        onChange={(e) => setFlagInput(e.target.value)}
-      />
-
-      <button onClick={submitFlag} className="btn mt-4">
-        🚩 Submit Flag
-      </button>
-
-      {message && <p className="mt-4">{message}</p>}
-
-      {message.startsWith("✅") && (
-        <div className="mt-4 bg-gray-800 p-4 rounded">
-          <h3 className="font-bold">🧠 Learning Summary</h3>
-          <p>{challenge.learning.explanation}</p>
-          <p className="mt-2">
-            <strong>MITRE:</strong> {challenge.learning.mitre.join(", ")}
-          </p>
-        </div>
-      )}
-    </div>
-  );
+  res.status(200).json({
+    success: true,
+    challenge
+  });
 }
-
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<App />);
-
-/* Tailwind helper */
-const style = document.createElement("style");
-style.innerHTML = `
-  .btn {
-    background: #16a34a;
-    color: black;
-    padding: 12px;
-    border-radius: 6px;
-    width: 100%;
-    font-weight: bold;
-  }
-`;
-document.head.appendChild(style);
